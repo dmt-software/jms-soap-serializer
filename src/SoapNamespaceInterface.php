@@ -2,7 +2,7 @@
 
 namespace DMT\Soap\Serializer;
 
-/** @codeCoverageIgnoreStart This is only executed when soap extension is not loaded */
+/** @codeCoverageIgnoreStart */
 if (!defined('SOAP_1_1')) {
     define('SOAP_1_1', 1);
 }
