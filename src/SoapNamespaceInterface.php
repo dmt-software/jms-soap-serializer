@@ -2,6 +2,7 @@
 
 namespace DMT\Soap\Serializer;
 
+/** @codeCoverageIgnoreStart This is only executed when soap extension is not loaded */
 if (!defined('SOAP_1_1')) {
     define('SOAP_1_1', 1);
 }
@@ -9,6 +10,7 @@ if (!defined('SOAP_1_1')) {
 if (!defined('SOAP_1_2')) {
     define('SOAP_1_2', 2);
 }
+/** @codeCoverageIgnoreEnd */
 
 /**
  * Interface SoapNamespaceInterface
