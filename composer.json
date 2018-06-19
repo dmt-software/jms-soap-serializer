@@ -1,0 +1,29 @@
+{
+    "name": "dmt-software/jms-soap-serializer",
+    "description": "JMS serialize visitor that (de)serializes SOAP requests/responses",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Bas de Mes",
+            "email": "bas@dmt-software.nl"
+        }
+    ],
+    "require": {
+        "php": "^7.1",
+        "jms/serializer": "^1.12"
+    },
+    "autoload": {
+        "psr-4": {
+            "DMT\\Soap\\Serialier\\": "src/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.2"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DMT\\Test\\Soap\\Serializer\\": "tests/"
+        }
+    }
+}

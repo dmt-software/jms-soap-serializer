@@ -1,0 +1,40 @@
+build:
+    tests:
+        override:
+            -
+                command: 'vendor/bin/phpunit tests --configuration phpunit.xml.dist --coverage-clover=code-coverage'
+                coverage:
+                    file: 'code-coverage'
+                    format: 'clover'
+    nodes:
+        tests: true
+        analysis:
+            tests:
+                override:
+                    -
+                        command: phpcs-run
+                        use_website_config: true
+                    - php-scrutinizer-run
+filter:
+    excluded_paths:
+        - 'tests/*'
+coding_style:
+    php:
+        spaces:
+            around_operators:
+                concatenation: true
+checks:
+    php:
+        simplify_boolean_return: true
+        return_doc_comments: true
+        return_doc_comment_if_not_inferrable: true
+        properties_in_camelcaps: true
+        parameters_in_camelcaps: true
+        parameter_doc_comments: true
+        no_long_variable_names:
+            maximum: '32'
+        check_method_contracts:
+            verify_interface_like_constraints: true
+            verify_documented_constraints: true
+            verify_parent_constraints: true
+        no_trailing_whitespace: false
