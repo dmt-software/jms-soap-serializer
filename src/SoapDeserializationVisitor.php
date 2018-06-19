@@ -49,7 +49,7 @@ class SoapDeserializationVisitor extends XmlDeserializationVisitor implements So
         $version = array_search(current($fault->getNamespaces()), static::SOAP_NAMESPACES);
 
         $reason = $code = null;
-        if ($version === SOAP_1_1) {
+        if ($version === self::SOAP_1_1) {
             $reason = $fault->faultstring;
             $code = trim(strstr($fault->faultcode, ":") ?? $fault->faultcode, ':');
         }

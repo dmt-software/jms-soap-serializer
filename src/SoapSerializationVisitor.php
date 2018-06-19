@@ -18,14 +18,14 @@ class SoapSerializationVisitor extends XmlSerializationVisitor implements SoapNa
     /**
      * @var int
      */
-    protected $version = SOAP_1_1;
+    protected $version = self::SOAP_1_1;
 
     /**
      * @param int $version
      *
      * @return SoapSerializationVisitor
      */
-    public function setVersion(int $version = SOAP_1_1): self
+    public function setVersion(int $version): self
     {
         $this->version = $version;
 
