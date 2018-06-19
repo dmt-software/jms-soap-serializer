@@ -1,4 +1,82 @@
 # SOAP Serializer
 
+[![Build Status](https://travis-ci.org/dmt-software/jms-soap-serializer.svg?branch=master)](https://travis-ci.org/dmt-software/jms-soap-serializer)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/dmt-software/jms-soap-serializer/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/dmt-software/jms-soap-serializer/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/dmt-software/jms-soap-serializer/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/dmt-software/jms-soap-serializer/?branch=master)
+
 ## Install
 `composer require dmt-software/jms-soap-serializer`
+
+## Usage
+
+### Configure Serializer
+
+```php
+<?php
+ 
+use DMT\Soap\Serializer\SoapDeserializationVisitor;
+use DMT\Soap\Serializer\SoapSerializationVisitor;
+use JMS\Serializer\Naming\PropertyNamingStrategyInterface;
+use JMS\Serializer\SerializerBuilder;
+ 
+/** @var PropertyNamingStrategyInterface $namingStrategy */
+$serializer = SerializerBuilder::create()
+    ->setSerializationVisitor('soap',new SoapSerializationVisitor($namingStrategy))
+    ->setDeserializationVisitor('soap',new SoapDeserializationVisitor($namingStrategy))
+    ->build();
+```
+
+### Configure Serializer with SoapHeader
+
+```php
+<?php
+ 
+use DMT\Soap\Serializer\SoapDeserializationVisitor;
+use DMT\Soap\Serializer\SoapHeaderInterface;
+use DMT\Soap\Serializer\SoapHeaderEventSubscriber;
+use DMT\Soap\Serializer\SoapSerializationVisitor;
+use JMS\Serializer\EventDispatcher\EventDispatcher;
+use JMS\Serializer\Naming\PropertyNamingStrategyInterface;
+use JMS\Serializer\SerializerBuilder;
+ 
+/** @var PropertyNamingStrategyInterface $namingStrategy */
+$serializer = SerializerBuilder::create()
+    ->configureListeners(
+        function (EventDispatcher $dispatcher) {
+            /** @var SoapHeaderInterface $soapHeader */
+            $dispatcher->addSubscriber(
+                new SoapHeaderEventSubscriber($soapHeader)
+            );
+        }
+    )
+    ->setSerializationVisitor('soap',new SoapSerializationVisitor($namingStrategy))
+    ->setDeserializationVisitor('soap',new SoapDeserializationVisitor($namingStrategy))
+    ->build();
+```
+
+### Serialize SOAP Request 
+
+```php
+<?php
+ 
+use JMS\Serializer\Serializer;
+
+/** @var Message $requestMessage */
+/** @var Serializer $serializer */
+$request = $serializer->serialize($requestMessage, 'soap');
+
+// $request = '<soap:Envelope ...><soap:Body><ns1:Message>...</ns1:Message></soap:Body></soap:Envelope>';
+```
+
+### Deserialize SOAP Response
+
+```php
+<?php
+ 
+use JMS\Serializer\Serializer;
+
+/** @var Serializer $serializer */
+$response = $serializer->deserialize('<env:Envelope ... </env:Envelope>', ResponseMessage::class, 'soap');
+
+// $response instanceof ResponseMessage
+```
