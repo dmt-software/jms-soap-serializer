@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-            "DMT\\Soap\\Serialier\\": "src/"
+            "DMT\\Soap\\Serializer\\": "src/"
         }
     },
     "require-dev": {
