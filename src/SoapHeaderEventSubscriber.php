@@ -75,6 +75,6 @@ class SoapHeaderEventSubscriber implements EventSubscriberInterface
      */
     protected function hasSoapHeader(\DOMDocument $document): bool
     {
-        return $document->getElementsByTagNameNS($document->lookupNamespaceUri('soap'), 'Header')->length;
+        return $document->getElementsByTagNameNS($document->lookupNamespaceUri('soap'), 'Header')->length > 0;
     }
 }

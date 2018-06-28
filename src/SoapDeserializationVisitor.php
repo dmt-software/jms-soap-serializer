@@ -13,15 +13,16 @@ use JMS\Serializer\XmlDeserializationVisitor;
 class SoapDeserializationVisitor extends XmlDeserializationVisitor implements SoapNamespaceInterface
 {
     /**
-     * @param string $data
+     * @param string $data3
      *
      * @return mixed|\SimpleXMLElement
      * @throws InvalidArgumentException
      * @throws SoapFaultException
      */
-    public function prepare($data)
+    public function prepare($data3)
     {
-        $element = parent::prepare($data);
+        /** @var \SimpleXMLElement $element */
+        $element = parent::prepare($data3);
 
         $version = array_search(current($element->getNamespaces()), static::SOAP_NAMESPACES);
         if (!$version) {
@@ -30,19 +31,18 @@ class SoapDeserializationVisitor extends XmlDeserializationVisitor implements So
 
         $messages = $element->xpath('*[local-name()="Body"]/*');
         if (count($messages) === 1) {
-            $data = $messages[0];
+            $element = $messages[0];
         }
 
-        if ($data->getName() === 'Fault') {
-            switch ($version) {
-                case static::SOAP_1_1:
-                    $this->throwSoap11Fault($data);
-                case static::SOAP_1_2:
-                    $this->throwSoap12Fault($data);
+        if ($element->getName() === 'Fault') {
+            if ($version == static::SOAP_1_1) {
+                $this->throwSoap11Fault($element);
+            } else {
+                $this->throwSoap12Fault($element);
             }
         }
 
-        return $data;
+        return $element;
     }
 
     /**

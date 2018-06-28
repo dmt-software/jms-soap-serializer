@@ -35,25 +35,26 @@ class SoapFaultException extends \RuntimeException
      * @param string $code
      * @param string $reason
      * @param string|null $node
-     * @param array $detail
+     * @param array|null $detail
      */
     public function __construct(string $code, string $reason, string $node = null, array $detail = null)
     {
-        $this->code = is_array($code) ? implode('.', $code) : $code;
+        $this->code = $code;
         $this->reason = $reason;
         $this->node = $node;
         $this->detail = $detail;
 
+        $previous = null;
         if (class_exists(\SoapFault::class)) {
             $code = preg_replace(
                 ['~^Receiver~', '~^Sender~', '~^DataEncodingUnknown~'],
                 ['Server', 'Client', 'Client'],
                 $this->code
             );
-            $previous = new \SoapFault($code, $reason, $node, $detail);
+            $previous = new \SoapFault(...func_get_args());
         }
 
-        parent::__construct($reason, 0, $previous ?? null);
+        parent::__construct($reason, 0, $previous);
     }
 
     public function getFaultCode(): string
