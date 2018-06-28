@@ -13,16 +13,16 @@ use JMS\Serializer\XmlDeserializationVisitor;
 class SoapDeserializationVisitor extends XmlDeserializationVisitor implements SoapNamespaceInterface
 {
     /**
-     * @param string $data3
+     * @param string $data
      *
      * @return mixed|\SimpleXMLElement
      * @throws InvalidArgumentException
      * @throws SoapFaultException
      */
-    public function prepare($data3)
+    public function prepare($data)
     {
         /** @var \SimpleXMLElement $element */
-        $element = parent::prepare($data3);
+        $element = parent::prepare($data);
 
         $version = array_search(current($element->getNamespaces()), static::SOAP_NAMESPACES);
         if (!$version) {
