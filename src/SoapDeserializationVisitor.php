@@ -16,7 +16,8 @@ class SoapDeserializationVisitor extends XmlDeserializationVisitor implements So
      * @param string $data
      *
      * @return mixed|\SimpleXMLElement
-     * @throws SoapFault
+     * @throws InvalidArgumentException
+     * @throws SoapFaultException
      */
     public function prepare($data)
     {
@@ -33,7 +34,12 @@ class SoapDeserializationVisitor extends XmlDeserializationVisitor implements So
         }
 
         if ($data->getName() === 'Fault') {
-            $this->throwSoapFault($data);
+            switch ($version) {
+                case static::SOAP_1_1:
+                    $this->throwSoap11Fault($data);
+                case static::SOAP_1_2:
+                    $this->throwSoap12Fault($data);
+            }
         }
 
         return $data;
@@ -42,19 +48,46 @@ class SoapDeserializationVisitor extends XmlDeserializationVisitor implements So
     /**
      * @param \SimpleXMLElement $fault
      *
-     * @throws SoapFault
+     * @throws SoapFaultException
      */
-    protected function throwSoapFault(\SimpleXMLElement $fault)
+    protected function throwSoap11Fault(\SimpleXMLElement $fault)
     {
-        $version = array_search(current($fault->getNamespaces()), static::SOAP_NAMESPACES);
+        $faultcode = $faultstring = '';
+        $faultactor = $detail = null;
 
-        $reason = $code = null;
-        if ($version === self::SOAP_1_1) {
-            $reason = $fault->faultstring;
-            $code = trim(strstr($fault->faultcode, ":") ?? $fault->faultcode, ':');
+        extract($this->elementToArray($fault), EXTR_IF_EXISTS);
+
+        throw new SoapFaultException($this->removePrefix($faultcode), $faultstring, $faultactor, $detail);
+    }
+
+    /**
+     * @param \SimpleXMLElement $fault
+     *
+     * @throws SoapFaultException
+     */
+    protected function throwSoap12Fault(\SimpleXMLElement $fault)
+    {
+        $lang = substr(locale_get_default(), 0, 2);
+        $path = '*[local-name()="Reason"]/*[local-name()="Text" and @xml:lang="' . $lang . '"]';
+
+        $messages = $fault->xpath($path);
+        if (count($messages) === 0) {
+            $messages = $fault->xpath('*[local-name()="Reason"]/*[local-name()="Text"]');
         }
 
-        throw new SoapFault($reason, $code, $this->faultToArray($fault));
+        $code = array_map(
+            [$this, 'removePrefix'],
+            $fault->xpath('//*[local-name()="Code" or local-name()="Subcode"]/*[local-name()="Value"]')
+        );
+
+        $node = $fault->xpath('*[local-name()="Node"]')[0] ?? null;
+        $detail = $fault->xpath('*[local-name()="Detail"]')[0] ?? null;
+
+        if ($detail !== null) {
+            $detail = $this->elementToArray($detail);
+        }
+
+        throw new SoapFaultException(implode('.', $code), $messages[0], $node, $detail);
     }
 
     /**
@@ -62,13 +95,30 @@ class SoapDeserializationVisitor extends XmlDeserializationVisitor implements So
      *
      * @return array
      */
-    protected function faultToArray(\SimpleXMLElement $element): array
+    protected function elementToArray(\SimpleXMLElement $element): array
     {
-        return array_map(
-            function (\SimpleXMLElement $element) {
-                return $element->children() ? $this->faultToArray($element) : strval($element);
-            },
-            iterator_to_array($element->children())
-        );
+        $result = [];
+        foreach ($element->xpath('*') as $node) {
+            if (count($node->xpath('*')) > 0) {
+                $value = $this->elementToArray($node);
+            } else {
+                $value = strval($node);
+            }
+            $result = array_merge_recursive($result, [$node->getName() => $value]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Remove a prefix from text node.
+     *
+     * @param string $value A node value containing a namespace prefix, eg SOAP-ENV:Client.
+     *
+     * @return string
+     */
+    protected function removePrefix(string $value): string
+    {
+        return preg_replace('~^(.+:)?(.*)$~', "$2", $value);
     }
 }

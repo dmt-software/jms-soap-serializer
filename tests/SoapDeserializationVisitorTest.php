@@ -3,7 +3,7 @@
 namespace DMT\Test\Soap\Serializer;
 
 use DMT\Soap\Serializer\SoapDeserializationVisitor;
-use DMT\Soap\Serializer\SoapFault;
+use DMT\Soap\Serializer\SoapFaultException;
 use DMT\Test\Soap\Serializer\Fixtures\Language;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
@@ -47,11 +47,44 @@ TXT;
     <SOAP-ENV:Fault>
       <faultcode>SOAP-ENV:%s</faultcode>
       <faultstring>%s</faultstring>
+      <faultactor>%s</faultactor>
       <detail><message>%s</message></detail>
     </SOAP-ENV:Fault>
   </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>
 TXT;
+
+    /**
+     * @var string
+     */
+    protected $fault12 = <<<TXT
+<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope" 
+    xmlns:xml="http://www.w3.org/XML/1998/namespace">
+  <env:Body>
+    <env:Fault>
+      <env:Code>
+        <env:Value>env:Receiver</env:Value>
+        <env:Subcode>
+          <env:Value>ns1:Validation</env:Value>
+          <env:Subcode>
+            <env:Value>ns1:Error</env:Value>
+          </env:Subcode>
+        </env:Subcode>
+      </env:Code>
+      <env:Reason>
+        <env:Text xml:lang="en">Division by zero</env:Text>
+        <env:Text xml:lang="fr">Devision par zéro</env:Text>
+      </env:Reason>
+      <env:Node>http://example.org/node</env:Node>
+      <env:Detail xmlns:ns1="http://example.org/ns">
+        <ns1:message>Division by zero</ns1:message>
+        <ns1:message>Don't do it again!</ns1:message>
+        </env:Detail>
+    </env:Fault>
+  </env:Body>
+</env:Envelope>
+TXT;
+
 
     public function setUp()
     {
@@ -105,21 +138,34 @@ TXT;
     /**
      * @dataProvider provideSoapFault
      *
-     * @param string $reason
      * @param string $code
+     * @param string $reason
+     * @param string $node
      * @param string $detail
      */
-    public function testSoapFault(string $reason, string $code, string $detail)
+    public function testSoapFault(string $code, string $reason, string $node, string $detail)
     {
-        static::expectException(SoapFault::class);
+        static::expectException(SoapFaultException::class);
 
         try {
-            $fault = sprintf($this->fault, $code, $reason, $detail);
+            $fault = vsprintf($this->fault, func_get_args());
             $this->serializer->deserialize($fault, \stdClass::class, 'soap');
-        } catch (SoapFault $fault) {
+        } catch (SoapFaultException $fault) {
             static::assertSame($reason, $fault->getMessage());
             static::assertSame($code, $fault->getFaultCode());
-            static::assertContains($detail, $fault->detail);
+
+            static::assertSame($code, $fault->code);
+            static::assertSame($reason, $fault->reason);
+            static::assertSame($node, $fault->node);
+            static::assertContains($detail, $fault->detail['message']);
+
+            /** @var \SoapFault $soapFault */
+            $soapFault = $fault->getPrevious();
+            static::assertInstanceOf(\SoapFault::class, $soapFault);
+            static::assertSame($code, $soapFault->faultcode);
+            static::assertSame($reason, $soapFault->faultstring);
+            static::assertSame($node, $soapFault->faultactor);
+            static::assertContains($detail, $soapFault->detail['message']);
 
             throw $fault;
         }
@@ -128,8 +174,51 @@ TXT;
     public function provideSoapFault(): array
     {
         return [
-            ['Lorum ipsum', 'Client.NotFound', 'Lorum ipsum dolor sit amet.'],
-            ['Praesent ut.', 'Server', 'Praesent ut eros lacus.'],
+            ['Client.NotFound', 'Lorum ipsum', 'http://xmpl.fault.com/err', 'Lorum ipsum dolor sit amet.'],
+            ['Server', 'Praesent ut.', 'http://xmpl.fault.com/some', 'Praesent ut eros lacus.'],
+        ];
+    }
+
+    /**
+     * @dataProvider provideMessages
+     *
+     * @param string $locale
+     * @param string $expected
+     */
+    public function testSoap12Fault(string $locale, string $expected)
+    {
+        static::expectException(SoapFaultException::class);
+        locale_set_default($locale);
+
+        try {
+            $this->serializer->deserialize($this->fault12, \stdClass::class, 'soap');
+        } catch (SoapFaultException $fault) {
+            static::assertSame($expected, $fault->getMessage());
+            static::assertSame('Receiver.Validation.Error', $fault->getFaultCode());
+
+            static::assertSame('Receiver.Validation.Error', $fault->code);
+            static::assertSame($expected, $fault->reason);
+            static::assertSame('http://example.org/node', $fault->node);
+            static::assertContains('Division by zero', $fault->detail['message']);
+
+            /** @var \SoapFault $soapFault */
+            $soapFault = $fault->getPrevious();
+            static::assertInstanceOf(\SoapFault::class, $soapFault);
+            static::assertSame('Server.Validation.Error', $soapFault->faultcode);
+            static::assertSame($expected, $soapFault->faultstring);
+            static::assertSame('http://example.org/node', $soapFault->faultactor);
+            static::assertContains('Division by zero', $soapFault->detail['message']);
+
+            throw $fault;
+        }
+    }
+
+    public function provideMessages(): array
+    {
+        return [
+            ['en_US', 'Division by zero'],
+            ['nl_NL', 'Division by zero'],
+            ['fr_FR', 'Devision par zéro'],
         ];
     }
 }

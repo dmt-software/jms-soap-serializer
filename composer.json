@@ -11,6 +11,7 @@
     ],
     "require": {
         "php": "^7.1",
+        "ext-intl" : "*",
         "jms/serializer": "^1.12"
     },
     "autoload": {
@@ -19,6 +20,7 @@
         }
     },
     "require-dev": {
+        "ext-soap" : "*",
         "phpunit/phpunit": "^7.2"
     },
     "autoload-dev": {
