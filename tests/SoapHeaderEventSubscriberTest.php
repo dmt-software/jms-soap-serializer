@@ -55,7 +55,7 @@ class SoapHeaderEventSubscriberTest extends TestCase
         static::assertSame('Header', $xml->xpath('/*[local-name()="Envelope"]/*')[0]->getName());
         static::assertSame('Body', $xml->xpath('/*[local-name()="Envelope"]/*')[1]->getName());
 
-        $header = $xml->xpath('/*[local-name()="Envelope"]/*')[0]->children();
+        $header = $xml->xpath('//*[local-name()="Header"]/*')[0]->children();
         static::assertSame('dummy', strval($header->username));
         static::assertSame('secret123!', strval($header->password));
     }
