@@ -29,6 +29,8 @@ class SoapDeserializationVisitor extends XmlDeserializationVisitor implements So
             throw new InvalidArgumentException('Unsupported SOAP version');
         }
 
+        $element = $this->moveChildNamespacesToEnvelope($element);
+
         $messages = $element->xpath('*[local-name()="Body"]/*');
         if (count($messages) === 1) {
             $element = $messages[0];
@@ -43,6 +45,26 @@ class SoapDeserializationVisitor extends XmlDeserializationVisitor implements So
         }
 
         return $element;
+    }
+
+    /**
+     * Move all underlying namespaces to root element.
+     *
+     * @param \SimpleXMLElement $element
+     *
+     * @return \SimpleXMLElement
+     */
+    protected function moveChildNamespacesToEnvelope(\SimpleXMLElement $element): \SimpleXMLElement
+    {
+        $dom = dom_import_simplexml($element);
+
+        foreach ($element->getNamespaces(true) as $prefix => $namespace) {
+            if (!in_array($namespace, $element->getDocNamespaces())) {
+                $dom->setAttributeNS('http://www.w3.org/2000/xmlns/', $prefix ? 'xmlns:' . $prefix : 'xmlns', $namespace);
+            }
+        }
+
+        return parent::prepare($dom->ownerDocument->saveXML());
     }
 
     /**

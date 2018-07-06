@@ -28,8 +28,8 @@ class SoapDeserializationVisitorTest extends TestCase
      * @var string
      */
     protected $response = <<<TXT
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns="http://xmpl-namespace.nl">
-  <SOAP-ENV:Body>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+  <SOAP-ENV:Body xmlns="http://xmpl-namespace.nl">
     <Language>
       <name>%s</name>
       <complexity>%d</complexity>
