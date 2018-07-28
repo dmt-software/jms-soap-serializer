@@ -30,15 +30,25 @@ class Language
     protected $complexity;
 
     /**
+     * @JMS\XmlElement(cdata=false, namespace="http://xmpl-namespace.nl")
+     * @JMS\Type("DateTime<'Y-m-d'>")
+     *
+     * @var \DateTime
+     */
+    protected $since;
+
+    /**
      * Language constructor.
      *
      * @param string $name The programming language name.
      * @param int $complexity The complexity measured by the number of reserved words or keywords.
+     * @param \DateTime $since
      */
-    public function __construct(string $name, int $complexity)
+    public function __construct(string $name, int $complexity, \DateTime $since)
     {
         $this->setName($name);
         $this->setComplexity($complexity);
+        $this->setSince($since);
     }
 
 
@@ -72,5 +82,21 @@ class Language
     public function setComplexity(int $complexity): void
     {
         $this->complexity = $complexity;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getSince(): \DateTime
+    {
+        return $this->since;
+    }
+
+    /**
+     * @param \DateTime $since
+     */
+    public function setSince(\DateTime $since): void
+    {
+        $this->since = $since;
     }
 }

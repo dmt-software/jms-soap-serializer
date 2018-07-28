@@ -11,7 +11,9 @@
     ],
     "require": {
         "php": "^7.1",
+        "ext-dom": "*",
         "ext-intl" : "*",
+        "ext-simplexml": "*",
         "jms/serializer": "^1.12"
     },
     "autoload": {

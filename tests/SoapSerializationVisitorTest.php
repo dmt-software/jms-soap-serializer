@@ -2,10 +2,12 @@
 
 namespace DMT\Test\Soap\Serializer;
 
+use DMT\Soap\Serializer\SoapDateHandler;
 use DMT\Soap\Serializer\SoapNamespaceInterface;
 use DMT\Soap\Serializer\SoapSerializationVisitor;
 use DMT\Test\Soap\Serializer\Fixtures\Language;
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use JMS\Serializer\Handler\HandlerRegistry;
 use JMS\Serializer\Metadata\ClassMetadata;
 use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
 use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
@@ -39,6 +41,11 @@ class SoapSerializationVisitorTest extends TestCase
                     )
                 )
             )
+            ->configureHandlers(
+                function(HandlerRegistry $registry) {
+                    $registry->registerSubscribingHandler(new SoapDateHandler());
+                }
+            )
             ->build();
     }
 
@@ -47,10 +54,11 @@ class SoapSerializationVisitorTest extends TestCase
      *
      * @param string $name
      * @param int $complexity
+     * @param \DateTime $date
      */
-    public function testSerialization(string $name, int $complexity)
+    public function testSerialization(string $name, int $complexity, \DateTime $date)
     {
-        $xml = simplexml_load_string($this->serializer->serialize(new Language($name, $complexity), 'soap'));
+        $xml = simplexml_load_string($this->serializer->serialize(new Language($name, $complexity, $date), 'soap'));
 
         static::assertContains(SoapNamespaceInterface::SOAP_NAMESPACES[SOAP_1_1], $xml->getNamespaces());
         static::assertSame('Envelope', $xml->getName());
@@ -60,12 +68,15 @@ class SoapSerializationVisitorTest extends TestCase
         static::assertContains('http://xmpl-namespace.nl', $message->getNamespaces());
         static::assertSame($name, strval($message->name));
         static::assertSame($complexity, intval($message->complexity));
+        static::assertSame($date->format('Y-m-d'), strval($message->since));
     }
 
     public function provideLanguage(): array
     {
         return [
-            ['F#', 103], ['JavaScript', 64], ['Perl', 40]
+            ['F#', 103, new \DateTime('2005-05-01')],
+            ['JavaScript', 64, new \DateTime('1995-09-13')],
+            ['Perl', 40, new \DateTime('1987-12-18')]
         ];
     }
 

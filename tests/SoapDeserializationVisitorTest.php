@@ -2,10 +2,12 @@
 
 namespace DMT\Test\Soap\Serializer;
 
+use DMT\Soap\Serializer\SoapDateHandler;
 use DMT\Soap\Serializer\SoapDeserializationVisitor;
 use DMT\Soap\Serializer\SoapFaultException;
 use DMT\Test\Soap\Serializer\Fixtures\Language;
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use JMS\Serializer\Handler\HandlerRegistry;
 use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
 use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
 use JMS\Serializer\Serializer;
@@ -33,6 +35,7 @@ class SoapDeserializationVisitorTest extends TestCase
     <Language>
       <name>%s</name>
       <complexity>%d</complexity>
+      <since>%s</since>
     </Language>
   </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>
@@ -99,6 +102,11 @@ TXT;
                     )
                 )
             )
+            ->configureHandlers(
+                function(HandlerRegistry $registry) {
+                    $registry->registerSubscribingHandler(new SoapDateHandler());
+                }
+            )
             ->build();
     }
 
@@ -107,21 +115,26 @@ TXT;
      *
      * @param string $name
      * @param int $complexity
+     * @param string $date
      */
-    public function testDeserialization(string $name, int $complexity)
+    public function testDeserialization(string $name, int $complexity, string $date = null)
     {
-        $response = sprintf($this->response, $name, $complexity);
+        $response = sprintf($this->response, $name, $complexity, $date);
         $language = $this->serializer->deserialize($response, Language::class, 'soap');
 
         /** @var Language $language */
         static::assertSame($name, $language->getName());
         static::assertSame($complexity, $language->getComplexity());
+        static::assertEquals($date, $language->getSince()->format('Y-m-d'));
     }
 
     public function provideLanguage(): array
     {
         return [
-            ['C#', 102], ['PHP', 67], ['Java', 50], ['Ruby', 39]
+            ['C#', 102, '2002-01-10'],
+            ['PHP', 67, '1995-06-12'],
+            ['Java', 50, '1995-05-23'],
+            ['Ruby', 39, '1990-07-01']
         ];
     }
 
