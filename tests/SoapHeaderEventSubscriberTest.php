@@ -2,6 +2,7 @@
 
 namespace DMT\Test\Soap\Serializer;
 
+use DMT\Soap\Serializer\SoapDateHandler;
 use DMT\Soap\Serializer\SoapHeaderEventSubscriber;
 use DMT\Soap\Serializer\SoapNamespaceInterface;
 use DMT\Soap\Serializer\SoapSerializationVisitor;
@@ -48,7 +49,9 @@ class SoapHeaderEventSubscriberTest extends TestCase
             )
             ->build();
 
-        $xml = simplexml_load_string($serializer->serialize(new Language('Python', 33), 'soap'));
+        $xml = simplexml_load_string(
+            $serializer->serialize(new Language('Python', 33, new \DateTime('1994-01-25')), 'soap')
+        );
 
         static::assertContains(SoapNamespaceInterface::SOAP_NAMESPACES[SOAP_1_1], $xml->getNamespaces());
         static::assertSame('Envelope', $xml->getName());
