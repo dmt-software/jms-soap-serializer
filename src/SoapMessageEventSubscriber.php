@@ -109,7 +109,11 @@ class SoapMessageEventSubscriber implements EventSubscriberInterface, SoapNamesp
 
         foreach ($element->getNamespaces(true) as $prefix => $namespace) {
             if (!in_array($namespace, $element->getDocNamespaces())) {
-                $dom->setAttributeNS('http://www.w3.org/2000/xmlns/', $prefix ? 'xmlns:' . $prefix : 'xmlns', $namespace);
+                $dom->setAttributeNS(
+                    'http://www.w3.org/2000/xmlns/',
+                    $prefix ? 'xmlns:' . $prefix : 'xmlns',
+                    $namespace
+                );
             }
         }
 

@@ -52,7 +52,7 @@ class SoapHeaderEventSubscriberTest extends TestCase
                 }
             )
             ->configureHandlers(
-                function(HandlerRegistry $registry) {
+                function (HandlerRegistry $registry) {
                     $registry->registerSubscribingHandler(new SoapDateHandler());
                 }
             )

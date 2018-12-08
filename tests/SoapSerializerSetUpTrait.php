@@ -41,7 +41,7 @@ trait SoapSerializerSetUpTrait
                 }
             )
             ->configureHandlers(
-                function(HandlerRegistry $registry) {
+                function (HandlerRegistry $registry) {
                     $registry->registerSubscribingHandler(new SoapDateHandler());
                 }
             )
