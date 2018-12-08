@@ -14,47 +14,85 @@
 ```php
 <?php
  
-use DMT\Soap\Serializer\SoapDeserializationVisitor;
-use DMT\Soap\Serializer\SoapSerializationVisitor;
-use JMS\Serializer\Naming\PropertyNamingStrategyInterface;
+use DMT\Soap\Serializer\SoapDeserializationVisitorFactory;
+use DMT\Soap\Serializer\SoapSerializationVisitorFactory;
+use DMT\Soap\Serializer\SoapMessageEventSubscriber;
+use JMS\Serializer\EventDispatcher\EventDispatcher;
 use JMS\Serializer\SerializerBuilder;
  
-/** @var PropertyNamingStrategyInterface $namingStrategy */
-$serializer = SerializerBuilder::create()
-    ->setSerializationVisitor('soap',new SoapSerializationVisitor($namingStrategy))
-    ->setDeserializationVisitor('soap',new SoapDeserializationVisitor($namingStrategy))
-    ->build();
+$builder = SerializerBuilder::create()
+    ->setSerializationVisitor('soap', new SoapSerializationVisitorFactory())
+    ->setDeserializationVisitor('soap', new SoapDeserializationVisitorFactory())
+    ->configureListeners(
+        function (EventDispatcher $dispatcher) {
+            $dispatcher->addSubscriber(
+                new SoapMessageEventSubscriber()
+            );
+        }
+    );
+
+$serializer = $builder->build();
 ```
 
-### Configure Serializer with SoapHeader
+#### Enable (de)serialization of DateTime objects
 
 ```php
 <?php
  
-use DMT\Soap\Serializer\SoapDeserializationVisitor;
+use DMT\Soap\Serializer\SoapDateHandler;
+use JMS\Serializer\Handler\HandlerRegistry;
+
+/** @var JMS\Serializer\SerializerBuilder $builder */
+$builder->configureHandlers(
+    function(HandlerRegistry $registry) {
+        $registry->registerSubscribingHandler(new SoapDateHandler());
+    }
+);
+```  
+
+#### Configure Serializer with SoapHeader
+
+```php
+<?php
+ 
 use DMT\Soap\Serializer\SoapHeaderInterface;
 use DMT\Soap\Serializer\SoapHeaderEventSubscriber;
-use DMT\Soap\Serializer\SoapSerializationVisitor;
+use DMT\Soap\Serializer\SoapMessageEventSubscriber;
 use JMS\Serializer\EventDispatcher\EventDispatcher;
-use JMS\Serializer\Naming\PropertyNamingStrategyInterface;
-use JMS\Serializer\SerializerBuilder;
  
-/** @var PropertyNamingStrategyInterface $namingStrategy */
-$serializer = SerializerBuilder::create()
-    ->configureListeners(
-        function (EventDispatcher $dispatcher) {
-            /** @var SoapHeaderInterface $soapHeader */
-            $dispatcher->addSubscriber(
-                new SoapHeaderEventSubscriber($soapHeader)
-            );
-        }
-    )
-    ->setSerializationVisitor('soap',new SoapSerializationVisitor($namingStrategy))
-    ->setDeserializationVisitor('soap',new SoapDeserializationVisitor($namingStrategy))
-    ->build();
+/** @var JMS\Serializer\SerializerBuilder $builder */
+$builder->configureListeners(
+    function (EventDispatcher $dispatcher) {
+        $dispatcher->addSubscriber(
+            new SoapMessageEventSubscriber()
+        );
+        /** @var SoapHeaderInterface $soapHeader */
+        $dispatcher->addSubscriber(
+            new SoapHeaderEventSubscriber($soapHeader)
+        );
+    }
+);
 ```
 
-### Serialize SOAP Request 
+#### Using SOAP 1.2
+
+```php
+<?php
+ 
+use DMT\Soap\Serializer\SoapNamespaceInterface;
+use DMT\Soap\Serializer\SoapSerializationVisitorFactory;
+
+/** @var JMS\Serializer\SerializerBuilder $builder */
+$builder->setSerializationVisitor(
+    'soap',
+    (new SoapSerializationVisitorFactory())
+        ->setSoapVersion(SoapNamespaceInterface::SOAP_1_2)
+);
+```
+
+### Using Serializer
+
+#### Serialize SOAP Request 
 
 ```php
 <?php
@@ -68,7 +106,7 @@ $request = $serializer->serialize($requestMessage, 'soap');
 // $request = '<soap:Envelope ...><soap:Body><ns1:Message>...</ns1:Message></soap:Body></soap:Envelope>';
 ```
 
-### Deserialize SOAP Response
+#### Deserialize SOAP Response
 
 ```php
 <?php

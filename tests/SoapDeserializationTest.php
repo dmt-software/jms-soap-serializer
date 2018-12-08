@@ -2,16 +2,9 @@
 
 namespace DMT\Test\Soap\Serializer;
 
-use DMT\Soap\Serializer\SoapDateHandler;
-use DMT\Soap\Serializer\SoapDeserializationVisitor;
 use DMT\Soap\Serializer\SoapFaultException;
 use DMT\Test\Soap\Serializer\Fixtures\Language;
-use Doctrine\Common\Annotations\AnnotationRegistry;
-use JMS\Serializer\Handler\HandlerRegistry;
-use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
-use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
 use JMS\Serializer\Serializer;
-use JMS\Serializer\SerializerBuilder;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -19,8 +12,10 @@ use PHPUnit\Framework\TestCase;
  *
  * @package DMT\Test\Soap
  */
-class SoapDeserializationVisitorTest extends TestCase
+class SoapDeserializationTest extends TestCase
 {
+    use SoapSerializerSetUpTrait;
+
     /**
      * @var Serializer
      */
@@ -87,28 +82,6 @@ TXT;
   </env:Body>
 </env:Envelope>
 TXT;
-
-
-    public function setUp()
-    {
-        AnnotationRegistry::registerUniqueLoader('class_exists');
-
-        $this->serializer = SerializerBuilder::create()
-            ->setDeserializationVisitor(
-                'soap',
-                new SoapDeserializationVisitor(
-                    new SerializedNameAnnotationStrategy(
-                        new IdenticalPropertyNamingStrategy()
-                    )
-                )
-            )
-            ->configureHandlers(
-                function(HandlerRegistry $registry) {
-                    $registry->registerSubscribingHandler(new SoapDateHandler());
-                }
-            )
-            ->build();
-    }
 
     /**
      * @dataProvider provideLanguage
