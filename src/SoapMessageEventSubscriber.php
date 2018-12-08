@@ -2,49 +2,98 @@
 
 namespace DMT\Soap\Serializer;
 
+use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
+use JMS\Serializer\EventDispatcher\PreDeserializeEvent;
+use JMS\Serializer\EventDispatcher\PreSerializeEvent;
 use JMS\Serializer\Exception\InvalidArgumentException;
-use JMS\Serializer\XmlDeserializationVisitor;
+use JMS\Serializer\Exception\RuntimeException;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\XmlSerializationVisitor;
+use Metadata\ClassMetadata;
 
 /**
- * Class SoapDeserializationVisitor
+ * Class SoapMessageEventSubscriber
  *
  * @package DMT\Soap
  */
-class SoapDeserializationVisitor extends XmlDeserializationVisitor implements SoapNamespaceInterface
+class SoapMessageEventSubscriber implements EventSubscriberInterface, SoapNamespaceInterface
 {
     /**
-     * @param string $data
-     *
-     * @return mixed|\SimpleXMLElement
-     * @throws InvalidArgumentException
-     * @throws SoapFaultException
+     * {@inheritdoc}
      */
-    public function prepare($data)
+    public static function getSubscribedEvents(): array
     {
-        /** @var \SimpleXMLElement $element */
-        $element = parent::prepare($data);
+        return [
+            [
+                'event' => 'serializer.pre_serialize',
+                'method' => 'addMessage',
+                'format' => 'soap',
+            ],
+            [
+                'event' => 'serializer.pre_deserialize',
+                'method' => 'getMessage',
+                'format' => 'soap',
+            ],
+        ];
+    }
 
-        $version = array_search(current($element->getNamespaces()), static::SOAP_NAMESPACES);
-        if (!$version) {
-            throw new InvalidArgumentException('Unsupported SOAP version');
-        }
+    /**
+     * @param PreSerializeEvent $event
+     */
+    public function addMessage(PreSerializeEvent $event)
+    {
+        /** @var SerializationContext $context */
+        $context = $event->getContext();
+        /** @var XmlSerializationVisitor $visitor */
+        $visitor = $context->getVisitor();
 
-        $element = $this->moveChildNamespacesToEnvelope($element);
+        if ($context->getDepth() === 1 && $visitor->getCurrentNode()->nodeName === 'soap:Body') {
+            /** @var ClassMetadata $metadata */
+            $metadata = $context->getMetadataFactory()->getMetadataForClass($event->getType()['name']);
 
-        $messages = $element->xpath('*[local-name()="Body"]/*');
-        if (count($messages) === 1) {
-            $element = $messages[0];
-        }
-
-        if ($element->getName() === 'Fault') {
-            if ($version == static::SOAP_1_1) {
-                $this->throwSoap11Fault($element);
-            } else {
-                $this->throwSoap12Fault($element);
+            if (!isset($metadata->xmlRootName, $metadata->xmlRootNamespace)) {
+                throw new RuntimeException('Missing XmlRootName or XmlRootNamespace for ' . $event->getType()['name']);
             }
-        }
 
-        return $element;
+            $document = $visitor->getDocument();
+            $message = $document->createElementNS($metadata->xmlRootNamespace, $metadata->xmlRootName);
+
+            $visitor->getCurrentNode()->appendChild($message);
+            $visitor->setCurrentNode($message);
+        }
+    }
+
+    /**
+     * @param PreDeserializeEvent $event
+     */
+    public function getMessage(PreDeserializeEvent $event)
+    {
+        /** @var SerializationContext $context */
+        $context = $event->getContext();
+
+        if ($context->getDepth() === 1) {
+            $element = $this->moveChildNamespacesToEnvelope($event->getData());
+
+            $version = array_search(current($element->getNamespaces()), static::SOAP_NAMESPACES);
+            if (!$version) {
+                throw new InvalidArgumentException('Unsupported SOAP version');
+            }
+
+            $messages = $element->xpath('*[local-name()="Body"]/*');
+            if (count($messages) === 1) {
+                $element = $messages[0];
+            }
+
+            if ($element->getName() === 'Fault') {
+                if ($version == static::SOAP_1_1) {
+                    $this->throwSoap11Fault($element);
+                } else {
+                    $this->throwSoap12Fault($element);
+                }
+            }
+
+            $event->setData($element);
+        }
     }
 
     /**
@@ -64,7 +113,7 @@ class SoapDeserializationVisitor extends XmlDeserializationVisitor implements So
             }
         }
 
-        return parent::prepare($dom->ownerDocument->saveXML());
+        return simplexml_import_dom($dom->ownerDocument);
     }
 
     /**

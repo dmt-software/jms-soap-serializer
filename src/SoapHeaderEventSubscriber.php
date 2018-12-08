@@ -6,9 +6,10 @@ use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
 use JMS\Serializer\Metadata\ClassMetadata;
 use JMS\Serializer\SerializationContext;
+use JMS\Serializer\XmlSerializationVisitor;
 
 /**
- * Class EventSubscriber
+ * Class SoapHeaderEventSubscriber
  *
  * @package DMT\Soap
  */
@@ -50,12 +51,12 @@ class SoapHeaderEventSubscriber implements EventSubscriberInterface
     {
         /** @var SerializationContext $context */
         $context = $event->getContext();
-        /** @var SoapSerializationVisitor $visitor */
+        /** @var XmlSerializationVisitor $visitor */
         $visitor = $event->getVisitor();
         /** @var \DOMDocument $document */
         $document = $visitor->getDocument();
 
-        if ($context->getDepth() === 0 && !$this->hasSoapHeader($document)) {
+        if (!$this->hasSoapHeader($document)) {
             /** @var ClassMetadata $metadata */
             $metadata = $context->getMetadataFactory()->getMetadataForClass(get_class($this->header));
 
@@ -72,7 +73,7 @@ class SoapHeaderEventSubscriber implements EventSubscriberInterface
                 )
             );
 
-            $context->getNavigator()->accept($this->header, null, $context);
+            $context->getNavigator()->accept($this->header, null);
         }
     }
 

@@ -16,6 +16,7 @@ class HeaderLogin implements SoapHeaderInterface
 {
     /**
      * @JMS\Type("string")
+     * @JMS\XmlElement(cdata=false)
      *
      * @var string
      */
@@ -23,6 +24,7 @@ class HeaderLogin implements SoapHeaderInterface
 
     /**
      * @JMS\Type("string")
+     * @JMS\XmlElement(cdata=false)
      *
      * @var string
      */

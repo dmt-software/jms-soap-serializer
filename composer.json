@@ -10,11 +10,11 @@
         }
     ],
     "require": {
-        "php": "^7.1",
+        "php": "^7.2",
         "ext-dom": "*",
         "ext-intl" : "*",
         "ext-simplexml": "*",
-        "jms/serializer": "^1.12"
+        "jms/serializer": "^2.0"
     },
     "autoload": {
         "psr-4": {

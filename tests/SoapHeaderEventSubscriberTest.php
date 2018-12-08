@@ -4,12 +4,15 @@ namespace DMT\Test\Soap\Serializer;
 
 use DMT\Soap\Serializer\SoapDateHandler;
 use DMT\Soap\Serializer\SoapHeaderEventSubscriber;
+use DMT\Soap\Serializer\SoapMessageEventSubscriber;
 use DMT\Soap\Serializer\SoapNamespaceInterface;
 use DMT\Soap\Serializer\SoapSerializationVisitor;
+use DMT\Soap\Serializer\SoapSerializationVisitorFactory;
 use DMT\Test\Soap\Serializer\Fixtures\HeaderLogin;
 use DMT\Test\Soap\Serializer\Fixtures\Language;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use JMS\Serializer\EventDispatcher\EventDispatcher;
+use JMS\Serializer\Handler\HandlerRegistry;
 use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
 use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
 use JMS\Serializer\SerializerBuilder;
@@ -30,8 +33,17 @@ class SoapHeaderEventSubscriberTest extends TestCase
         AnnotationRegistry::registerUniqueLoader('class_exists');
 
         $serializer = SerializerBuilder::create()
+            ->setSerializationVisitor('soap', new SoapSerializationVisitorFactory())
+            ->setPropertyNamingStrategy(
+                new SerializedNameAnnotationStrategy(
+                    new IdenticalPropertyNamingStrategy()
+                )
+            )
             ->configureListeners(
                 function (EventDispatcher $dispatcher) {
+                    $dispatcher->addSubscriber(
+                        new SoapMessageEventSubscriber()
+                    );
                     $dispatcher->addSubscriber(
                         new SoapHeaderEventSubscriber(
                             new HeaderLogin('dummy', 'secret123!')
@@ -39,13 +51,10 @@ class SoapHeaderEventSubscriberTest extends TestCase
                     );
                 }
             )
-            ->setSerializationVisitor(
-                'soap',
-                new SoapSerializationVisitor(
-                    new SerializedNameAnnotationStrategy(
-                        new IdenticalPropertyNamingStrategy()
-                    )
-                )
+            ->configureHandlers(
+                function(HandlerRegistry $registry) {
+                    $registry->registerSubscribingHandler(new SoapDateHandler());
+                }
             )
             ->build();
 
