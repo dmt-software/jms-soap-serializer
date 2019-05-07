@@ -14,7 +14,7 @@
         "ext-dom": "*",
         "ext-intl" : "*",
         "ext-simplexml": "*",
-        "jms/serializer": "^2.0"
+        "jms/serializer": "^3.0"
     },
     "autoload": {
         "psr-4": {
