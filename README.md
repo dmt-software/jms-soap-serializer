@@ -118,3 +118,34 @@ $response = $serializer->deserialize('<env:Envelope ... </env:Envelope>', Respon
 
 // $response instanceof ResponseMessage
 ```
+
+### Debugging
+
+#### Failing to make a request
+When creating a SOAP message you must provide a XmlRoot and XmlRootNamespace. If you forgot to provide them an exception
+is thrown "*Missing XmlRootName or XmlRootNamespace for ?YourSOAPRequest?". 
+ 
+To fix this add the XmlRoot annotation to your configuration:
+```php
+<?php 
+namespace Any\NS; 
+ 
+use JMS\Serializer\Annotation as JMS;
+ 
+/** 
+ * @JMS\XmlRoot("YourSOAPRequest", namespace="http://ns-for-your-request")
+ */
+class YourSOAPRequest
+{
+    ...
+}
+```
+or if you're using yaml configuration:
+      
+```yaml
+Any\NS\YourSOAPRequest:
+  ...
+  xml_root_name: YourSOAPRequest
+  xml_root_namespace: http://ns-for-your-request
+  ...   
+```
