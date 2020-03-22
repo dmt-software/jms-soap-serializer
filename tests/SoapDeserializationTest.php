@@ -165,6 +165,45 @@ TXT;
         ];
     }
 
+    public function testSoapFaultEmptyElements()
+    {
+        $fault = <<<TXT
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+  <SOAP-ENV:Body>
+    <SOAP-ENV:Fault>
+      <faultcode>SOAP-ENV:Client</faultcode>
+      <faultstring>Error in soap call</faultstring>
+      <faultactor></faultactor>
+      <detail></detail>
+    </SOAP-ENV:Fault>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
+TXT;
+        static::expectException(SoapFaultException::class);
+
+        try {
+            $this->serializer->deserialize($fault, \stdClass::class, 'soap');
+        } catch (SoapFaultException $fault) {
+            static::assertSame('Error in soap call', $fault->getMessage());
+            static::assertSame('Client', $fault->getFaultCode());
+
+            static::assertSame('Client', $fault->code);
+            static::assertSame('Error in soap call', $fault->reason);
+            static::assertNull($fault->node);
+            static::assertNull($fault->detail);
+
+            /** @var \SoapFault $soapFault */
+            $soapFault = $fault->getPrevious();
+            static::assertInstanceOf(\SoapFault::class, $soapFault);
+            static::assertSame('Client', $soapFault->faultcode);
+            static::assertSame('Error in soap call', $soapFault->faultstring);
+            static::assertObjectNotHasAttribute('faultactor', $soapFault);
+            static::assertObjectNotHasAttribute('detail', $soapFault);
+
+            throw $fault;
+        }
+    }
+
     /**
      * @dataProvider provideMessages
      *
