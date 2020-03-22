@@ -130,7 +130,8 @@ class SoapMessageEventSubscriber implements EventSubscriberInterface, SoapNamesp
         $faultcode = $faultstring = '';
         $faultactor = $detail = null;
 
-        extract($this->elementToArray($fault), EXTR_IF_EXISTS);
+        $elements = array_filter($this->elementToArray($fault));
+        extract($elements, EXTR_IF_EXISTS);
 
         throw new SoapFaultException($this->removePrefix($faultcode), $faultstring, $faultactor, $detail);
     }

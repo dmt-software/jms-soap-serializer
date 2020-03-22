@@ -4,9 +4,6 @@ namespace DMT\Test\Soap\Serializer;
 
 use DMT\Soap\Serializer\SoapNamespaceInterface;
 use DMT\Test\Soap\Serializer\Fixtures\Language;
-use JMS\Serializer\Metadata\ClassMetadata;
-use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
-use JMS\Serializer\SerializationContext;
 use PHPUnit\Framework\TestCase;
 
 /**
