@@ -1,8 +1,10 @@
 # SOAP Serializer
 
+[![Latest Stable Version](https://poser.pugx.org/dmt-software/jms-soap-serializer/v/stable)](https://packagist.org/packages/dmt-software/jms-soap-serializer)
 [![Build Status](https://travis-ci.org/dmt-software/jms-soap-serializer.svg?branch=master)](https://travis-ci.org/dmt-software/jms-soap-serializer)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/dmt-software/jms-soap-serializer/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/dmt-software/jms-soap-serializer/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/dmt-software/jms-soap-serializer/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/dmt-software/jms-soap-serializer/?branch=master)
+[![License](https://poser.pugx.org/dmt-software/jms-soap-serializer/license)](https://packagist.org/packages/dmt-software/jms-soap-serializer)
 
 ## Install
 `composer require dmt-software/jms-soap-serializer`
