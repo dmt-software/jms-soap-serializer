@@ -14,8 +14,6 @@
 ### Configure Serializer
 
 ```php
-<?php
- 
 use DMT\Soap\Serializer\SoapDeserializationVisitorFactory;
 use DMT\Soap\Serializer\SoapSerializationVisitorFactory;
 use DMT\Soap\Serializer\SoapMessageEventSubscriber;
@@ -39,8 +37,6 @@ $serializer = $builder->build();
 #### Enable (de)serialization of DateTime objects
 
 ```php
-<?php
- 
 use DMT\Soap\Serializer\SoapDateHandler;
 use JMS\Serializer\Handler\HandlerRegistry;
 
@@ -55,8 +51,6 @@ $builder->configureHandlers(
 #### Configure Serializer with SoapHeader
 
 ```php
-<?php
- 
 use DMT\Soap\Serializer\SoapHeaderInterface;
 use DMT\Soap\Serializer\SoapHeaderEventSubscriber;
 use DMT\Soap\Serializer\SoapMessageEventSubscriber;
@@ -78,9 +72,7 @@ $builder->configureListeners(
 
 #### Using SOAP 1.2
 
-```php
-<?php
- 
+```php 
 use DMT\Soap\Serializer\SoapNamespaceInterface;
 use DMT\Soap\Serializer\SoapSerializationVisitorFactory;
 
@@ -97,8 +89,6 @@ $builder->setSerializationVisitor(
 #### Serialize SOAP Request 
 
 ```php
-<?php
- 
 use JMS\Serializer\Serializer;
 
 /** @var Message $requestMessage */
@@ -111,8 +101,6 @@ $request = $serializer->serialize($requestMessage, 'soap');
 #### Deserialize SOAP Response
 
 ```php
-<?php
- 
 use JMS\Serializer\Serializer;
 
 /** @var Serializer $serializer */
@@ -124,12 +112,12 @@ $response = $serializer->deserialize('<env:Envelope ... </env:Envelope>', Respon
 ### Debugging
 
 #### Failing to make a request
-When creating a SOAP message you must provide a XmlRoot and XmlRootNamespace. If you forgot to provide them an exception
-is thrown "*Missing XmlRootName or XmlRootNamespace for ?YourSOAPRequest?". 
+When creating a SOAP message you must provide a XmlRoot and XmlRootNamespace. 
+If you forgot to provide them an exception is thrown:
+> Missing XmlRootName or XmlRootNamespace for {{ YourSOAPRequest }}. 
  
 To fix this add the XmlRoot annotation to your configuration:
 ```php
-<?php 
 namespace Any\NS; 
  
 use JMS\Serializer\Annotation as JMS;
@@ -139,7 +127,7 @@ use JMS\Serializer\Annotation as JMS;
  */
 class YourSOAPRequest
 {
-    ...
+    //...
 }
 ```
 or if you're using yaml configuration:
