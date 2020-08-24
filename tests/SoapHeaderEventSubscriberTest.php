@@ -8,14 +8,17 @@ use DMT\Soap\Serializer\SoapMessageEventSubscriber;
 use DMT\Soap\Serializer\SoapNamespaceInterface;
 use DMT\Soap\Serializer\SoapSerializationVisitor;
 use DMT\Soap\Serializer\SoapSerializationVisitorFactory;
+use DMT\Test\Soap\Serializer\Fixtures\Count;
 use DMT\Test\Soap\Serializer\Fixtures\HeaderLogin;
 use DMT\Test\Soap\Serializer\Fixtures\Language;
+use DMT\Test\Soap\Serializer\Fixtures\ListLanguages;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use JMS\Serializer\EventDispatcher\EventDispatcher;
 use JMS\Serializer\Handler\HandlerRegistry;
 use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
 use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
 use JMS\Serializer\SerializerBuilder;
+use Metadata\Tests\Driver\Fixture\C\SubDir\C;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -58,14 +61,23 @@ class SoapHeaderEventSubscriberTest extends TestCase
             )
             ->build();
 
+        $languages = new ListLanguages();
+        $languages->setLanguages([
+            new Language('Python', 33, new \DateTime('1994-01-25')),
+            new Language('Perl', 40, new \DateTime('1987-12-18'))
+        ]);
+        $languages->setCount(new Count(2));
+
         $xml = simplexml_load_string(
-            $serializer->serialize(new Language('Python', 33, new \DateTime('1994-01-25')), 'soap')
+            $serializer->serialize($languages, 'soap')
         );
 
         static::assertContains(SoapNamespaceInterface::SOAP_NAMESPACES[SOAP_1_1], $xml->getNamespaces());
         static::assertSame('Envelope', $xml->getName());
         static::assertSame('Header', $xml->xpath('/*[local-name()="Envelope"]/*')[0]->getName());
         static::assertSame('Body', $xml->xpath('/*[local-name()="Envelope"]/*')[1]->getName());
+        static::assertCount(2, $xml->xpath('//*[local-name()="Languages"]/*[local-name()="language"]'));
+        static::assertCount(1, $xml->xpath('//*[local-name()="Languages"]/*[local-name()="count"]'));
 
         $header = $xml->xpath('//*[local-name()="Header"]/*')[0]->children();
         static::assertSame('dummy', strval($header->username));
