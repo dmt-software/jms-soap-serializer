@@ -56,7 +56,7 @@ class SoapHeaderEventSubscriber implements EventSubscriberInterface
         /** @var \DOMDocument $document */
         $document = $visitor->getDocument();
 
-        if (!$this->hasSoapHeader($document)) {
+        if (!$this->hasSoapHeader($document) && $context->getDepth() === 0) {
             /** @var ClassMetadata $metadata */
             $metadata = $context->getMetadataFactory()->getMetadataForClass(get_class($this->header));
 
