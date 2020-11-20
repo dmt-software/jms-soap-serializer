@@ -2,6 +2,7 @@
 
 namespace DMT\Test\Soap\Serializer\Fixtures;
 
+use DateTime;
 use JMS\Serializer\Annotation as JMS;
 
 /**
@@ -33,7 +34,7 @@ class Language
      * @JMS\XmlElement(cdata=false, namespace="http://xmpl-namespace.nl")
      * @JMS\Type("DateTime<'Y-m-d'>")
      *
-     * @var \DateTime
+     * @var DateTime
      */
     protected $since;
 
@@ -42,9 +43,9 @@ class Language
      *
      * @param string $name The programming language name.
      * @param int $complexity The complexity measured by the number of reserved words or keywords.
-     * @param \DateTime $since
+     * @param DateTime $since
      */
-    public function __construct(string $name, int $complexity, \DateTime $since)
+    public function __construct(string $name, int $complexity, DateTime $since)
     {
         $this->setName($name);
         $this->setComplexity($complexity);
@@ -85,17 +86,17 @@ class Language
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getSince(): \DateTime
+    public function getSince(): DateTime
     {
         return $this->since;
     }
 
     /**
-     * @param \DateTime $since
+     * @param DateTime $since
      */
-    public function setSince(\DateTime $since): void
+    public function setSince(DateTime $since): void
     {
         $this->since = $since;
     }

@@ -3,31 +3,33 @@
 namespace DMT\Test\Soap\Serializer;
 
 use DMT\Soap\Serializer\SoapMessageEventSubscriber;
+use DOMDocument;
 use JMS\Serializer\EventDispatcher\PreSerializeEvent;
+use JMS\Serializer\Exception\RuntimeException;
 use JMS\Serializer\Metadata\ClassMetadata;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\XmlSerializationVisitor;
 use Metadata\MetadataFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 class SoapMessageEventSubscriberTest extends TestCase
 {
     /**
      * @dataProvider provideMetadata
      *
-     * @expectedException \JMS\Serializer\Exception\RuntimeException
-     * @expectedExceptionMessage Missing XmlRootName or XmlRootNamespace for ArrayObject
-     *
      * @param ClassMetadata $metadata
      */
     public function testMissingXmlRoot(ClassMetadata $metadata)
     {
+        $this->expectExceptionObject(new RuntimeException('Missing XmlRootName or XmlRootNamespace for ArrayObject'));
+
         $eventSubscriber = new SoapMessageEventSubscriber();
         $eventSubscriber->addMessage(
             new PreSerializeEvent(
                 $this->getSerializationContext($metadata),
-                new \stdClass(),
+                new stdClass(),
                 ['name' => 'ArrayObject']
             )
         );
@@ -36,12 +38,12 @@ class SoapMessageEventSubscriberTest extends TestCase
     public function provideMetadata(): array
     {
         $metadataFactory = function (array $metadataValues = []): ClassMetadata {
-            /** @var ClassMetadata $classMetedata */
-            $classMetedata = static::createMock(ClassMetadata::class);
+            /** @var ClassMetadata $classMetadata */
+            $classMetadata = static::createMock(ClassMetadata::class);
             foreach ($metadataValues as $property => $value) {
-                $classMetedata->{$property} = $value;
+                $classMetadata->{$property} = $value;
             }
-            return $classMetedata;
+            return $classMetadata;
         };
 
         return [
@@ -81,7 +83,7 @@ class SoapMessageEventSubscriberTest extends TestCase
             ->willReturnCallback(
                 function () {
                     $visitor = new XmlSerializationVisitor();
-                    $visitor->setCurrentNode((new \DOMDocument())->createElement('soap:Body'));
+                    $visitor->setCurrentNode((new DOMDocument())->createElement('soap:Body'));
 
                     return $visitor;
                 }

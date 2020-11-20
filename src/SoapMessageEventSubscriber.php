@@ -10,6 +10,7 @@ use JMS\Serializer\Exception\RuntimeException;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\XmlSerializationVisitor;
 use Metadata\ClassMetadata;
+use SimpleXMLElement;
 
 /**
  * Class SoapMessageEventSubscriber
@@ -99,11 +100,11 @@ class SoapMessageEventSubscriber implements EventSubscriberInterface, SoapNamesp
     /**
      * Move all underlying namespaces to root element.
      *
-     * @param \SimpleXMLElement $element
+     * @param SimpleXMLElement $element
      *
-     * @return \SimpleXMLElement
+     * @return SimpleXMLElement
      */
-    protected function moveChildNamespacesToEnvelope(\SimpleXMLElement $element): \SimpleXMLElement
+    protected function moveChildNamespacesToEnvelope(SimpleXMLElement $element): SimpleXMLElement
     {
         $dom = dom_import_simplexml($element);
 
@@ -121,11 +122,11 @@ class SoapMessageEventSubscriber implements EventSubscriberInterface, SoapNamesp
     }
 
     /**
-     * @param \SimpleXMLElement $fault
+     * @param SimpleXMLElement $fault
      *
      * @throws SoapFaultException
      */
-    protected function throwSoap11Fault(\SimpleXMLElement $fault)
+    protected function throwSoap11Fault(SimpleXMLElement $fault)
     {
         $faultcode = $faultstring = '';
         $faultactor = $detail = null;
@@ -137,11 +138,11 @@ class SoapMessageEventSubscriber implements EventSubscriberInterface, SoapNamesp
     }
 
     /**
-     * @param \SimpleXMLElement $fault
+     * @param SimpleXMLElement $fault
      *
      * @throws SoapFaultException
      */
-    protected function throwSoap12Fault(\SimpleXMLElement $fault)
+    protected function throwSoap12Fault(SimpleXMLElement $fault)
     {
         $lang = substr(locale_get_default(), 0, 2);
         $path = '*[local-name()="Reason"]/*[local-name()="Text" and @xml:lang="' . $lang . '"]';
@@ -167,11 +168,11 @@ class SoapMessageEventSubscriber implements EventSubscriberInterface, SoapNamesp
     }
 
     /**
-     * @param \SimpleXMLElement $element
+     * @param SimpleXMLElement $element
      *
      * @return array
      */
-    protected function elementToArray(\SimpleXMLElement $element): array
+    protected function elementToArray(SimpleXMLElement $element): array
     {
         $result = [];
         foreach ($element->xpath('*') as $node) {

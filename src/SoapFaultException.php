@@ -2,12 +2,15 @@
 
 namespace DMT\Soap\Serializer;
 
+use RuntimeException;
+use SoapFault;
+
 /**
  * Class SoapFaultException
  *
  * @package DMT\Soap
  */
-class SoapFaultException extends \RuntimeException
+class SoapFaultException extends RuntimeException
 {
     /**
      * @var string
@@ -45,13 +48,13 @@ class SoapFaultException extends \RuntimeException
         $this->detail = $detail;
 
         $previous = null;
-        if (class_exists(\SoapFault::class)) {
+        if (class_exists(SoapFault::class)) {
             $code = preg_replace(
                 ['~^Receiver~', '~^Sender~', '~^DataEncodingUnknown~'],
                 ['Server', 'Client', 'Client'],
                 $this->code
             );
-            $previous = new \SoapFault(...func_get_args());
+            $previous = new SoapFault(...func_get_args());
         }
 
         parent::__construct($reason, 0, $previous);

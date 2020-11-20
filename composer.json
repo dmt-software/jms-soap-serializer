@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": "^7.2",
+        "php": ">=7.2",
         "ext-dom": "*",
         "ext-intl" : "*",
         "ext-simplexml": "*",
@@ -23,7 +23,7 @@
     },
     "require-dev": {
         "ext-soap" : "*",
-        "phpunit/phpunit": "^7.2"
+        "phpunit/phpunit": "^7.2 || ^8.0"
     },
     "autoload-dev": {
         "psr-4": {

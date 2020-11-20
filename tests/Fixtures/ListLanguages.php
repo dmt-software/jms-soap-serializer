@@ -3,7 +3,6 @@
 namespace DMT\Test\Soap\Serializer\Fixtures;
 
 use JMS\Serializer\Annotation as JMS;
-use DMT\Test\Soap\Serializer\Fixtures\Count;
 
 /**
  * Class ListLanguages
@@ -47,17 +46,17 @@ class ListLanguages
     }
 
     /**
-     * @return \DMT\Test\Soap\Serializer\Fixtures\Count
+     * @return Count
      */
-    public function getCount(): \DMT\Test\Soap\Serializer\Fixtures\Count
+    public function getCount(): Count
     {
         return $this->count;
     }
 
     /**
-     * @param \DMT\Test\Soap\Serializer\Fixtures\Count $count
+     * @param Count $count
      */
-    public function setCount(\DMT\Test\Soap\Serializer\Fixtures\Count $count): void
+    public function setCount(Count $count): void
     {
         $this->count = $count;
     }

@@ -2,11 +2,11 @@
 
 namespace DMT\Test\Soap\Serializer;
 
+use DateTime;
 use DMT\Soap\Serializer\SoapDateHandler;
 use DMT\Soap\Serializer\SoapHeaderEventSubscriber;
 use DMT\Soap\Serializer\SoapMessageEventSubscriber;
 use DMT\Soap\Serializer\SoapNamespaceInterface;
-use DMT\Soap\Serializer\SoapSerializationVisitor;
 use DMT\Soap\Serializer\SoapSerializationVisitorFactory;
 use DMT\Test\Soap\Serializer\Fixtures\Count;
 use DMT\Test\Soap\Serializer\Fixtures\HeaderLogin;
@@ -18,7 +18,6 @@ use JMS\Serializer\Handler\HandlerRegistry;
 use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
 use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
 use JMS\Serializer\SerializerBuilder;
-use Metadata\Tests\Driver\Fixture\C\SubDir\C;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -63,8 +62,8 @@ class SoapHeaderEventSubscriberTest extends TestCase
 
         $languages = new ListLanguages();
         $languages->setLanguages([
-            new Language('Python', 33, new \DateTime('1994-01-25')),
-            new Language('Perl', 40, new \DateTime('1987-12-18'))
+            new Language('Python', 33, new DateTime('1994-01-25')),
+            new Language('Perl', 40, new DateTime('1987-12-18'))
         ]);
         $languages->setCount(new Count(2));
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace DMT\test\Soap\Serializer;
+namespace DMT\Test\Soap\Serializer;
 
 use DMT\Soap\Serializer\SoapDeserializationVisitorFactory;
 use PHPUnit\Framework\TestCase;
@@ -10,9 +10,10 @@ class SoapDeserializationVisitorFactoryTest extends TestCase
     public function testEnableExternalEntities()
     {
         $factory = new SoapDeserializationVisitorFactory();
+        $clone = clone($factory);
 
-        static::assertAttributeNotSame(false, 'disableExternalEntities', $factory);
+        static::assertEquals($clone, $factory);
         static::assertInstanceOf(SoapDeserializationVisitorFactory::class, $factory->enableExternalEntities(true));
-        static::assertAttributeSame(false, 'disableExternalEntities', $factory);
+        static::assertNotEquals($clone, $factory);
     }
 }

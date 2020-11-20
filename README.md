@@ -116,7 +116,7 @@ When creating a SOAP message you must provide a XmlRoot and XmlRootNamespace.
 If you forgot to provide them an exception is thrown:
 > Missing XmlRootName or XmlRootNamespace for {{ YourSOAPRequest }}. 
  
-To fix this add the XmlRoot annotation to your configuration:
+To fix this, add the XmlRoot annotation to your configuration:
 ```php
 namespace Any\NS; 
  

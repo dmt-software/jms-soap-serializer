@@ -2,6 +2,7 @@
 
 namespace DMT\Test\Soap\Serializer;
 
+use DateTime;
 use DMT\Soap\Serializer\SoapNamespaceInterface;
 use DMT\Test\Soap\Serializer\Fixtures\Language;
 use PHPUnit\Framework\TestCase;
@@ -20,9 +21,9 @@ class SoapSerializationTest extends TestCase
      *
      * @param string $name
      * @param int $complexity
-     * @param \DateTime $date
+     * @param DateTime $date
      */
-    public function testSerialization(string $name, int $complexity, \DateTime $date)
+    public function testSerialization(string $name, int $complexity, DateTime $date)
     {
         $xml = simplexml_load_string($this->serializer->serialize(new Language($name, $complexity, $date), 'soap'));
 
@@ -40,9 +41,9 @@ class SoapSerializationTest extends TestCase
     public function provideLanguage(): array
     {
         return [
-            ['F#', 103, new \DateTime('2005-05-01')],
-            ['JavaScript', 64, new \DateTime('1995-09-13')],
-            ['Perl', 40, new \DateTime('1987-12-18')]
+            ['F#', 103, new DateTime('2005-05-01')],
+            ['JavaScript', 64, new DateTime('1995-09-13')],
+            ['Perl', 40, new DateTime('1987-12-18')]
         ];
     }
 }
