@@ -2,6 +2,7 @@
 
 namespace DMT\Soap\Serializer;
 
+use DOMNode;
 use JMS\Serializer\Exception\InvalidArgumentException;
 use JMS\Serializer\Visitor\Factory\SerializationVisitorFactory;
 use JMS\Serializer\Visitor\SerializationVisitorInterface;
@@ -91,18 +92,16 @@ final class SoapSerializationVisitorFactory implements SerializationVisitorFacto
     /**
      * Wraps XmlElement(s) that will hold the SOAP message.
      *
-     * @param \DOMNode $parentNode
+     * @param DOMNode $parentNode
      * @param string $nodeName
      * @param string $namespace
      *
-     * @return \DOMNode
+     * @return DOMNode
      */
-    protected function addXmlElement(\DOMNode $parentNode, string $nodeName, string $namespace): \DOMNode
+    protected function addXmlElement(DOMNode $parentNode, string $nodeName, string $namespace): DOMNode
     {
-        $node = $parentNode->appendChild(
+        return $parentNode->appendChild(
             ($parentNode->ownerDocument ?? $parentNode)->createElementNS($namespace, $nodeName)
         );
-
-        return $node;
     }
 }

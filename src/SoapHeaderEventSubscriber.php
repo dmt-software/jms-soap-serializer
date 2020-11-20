@@ -2,6 +2,7 @@
 
 namespace DMT\Soap\Serializer;
 
+use DOMDocument;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
 use JMS\Serializer\Metadata\ClassMetadata;
@@ -53,7 +54,7 @@ class SoapHeaderEventSubscriber implements EventSubscriberInterface
         $context = $event->getContext();
         /** @var XmlSerializationVisitor $visitor */
         $visitor = $event->getVisitor();
-        /** @var \DOMDocument $document */
+        /** @var DOMDocument $document */
         $document = $visitor->getDocument();
 
         if (!$this->hasSoapHeader($document) && $context->getDepth() === 0) {
@@ -80,11 +81,11 @@ class SoapHeaderEventSubscriber implements EventSubscriberInterface
     /**
      * Check if the header is already added.
      *
-     * @param \DOMDocument $document
+     * @param DOMDocument $document
      *
      * @return bool
      */
-    protected function hasSoapHeader(\DOMDocument $document): bool
+    protected function hasSoapHeader(DOMDocument $document): bool
     {
         return $document->getElementsByTagNameNS($document->lookupNamespaceUri('soap'), 'Header')->length > 0;
     }

@@ -1,9 +1,11 @@
 <?php
 
-namespace DMT\test\Soap\Serializer;
+namespace DMT\Test\Soap\Serializer;
 
 use DMT\Soap\Serializer\SoapNamespaceInterface;
 use DMT\Soap\Serializer\SoapSerializationVisitorFactory;
+use Generator;
+use JMS\Serializer\Exception\InvalidArgumentException;
 use JMS\Serializer\XmlSerializationVisitor;
 use PHPUnit\Framework\TestCase;
 
@@ -15,10 +17,11 @@ class SoapSerializationVisitorFactoryTest extends TestCase
     public function testSetDefaultVersion()
     {
         $factory = new SoapSerializationVisitorFactory();
+        $clone = clone($factory);
 
-        static::assertAttributeNotSame('2.0', 'defaultVersion', $factory);
+        static::assertEquals($clone, $factory);
         static::assertInstanceOf(SoapSerializationVisitorFactory::class, $factory->setDefaultVersion('2.0'));
-        static::assertAttributeSame('2.0', 'defaultVersion', $factory);
+        static::assertNotEquals($clone, $factory);
     }
 
     /**
@@ -27,10 +30,11 @@ class SoapSerializationVisitorFactoryTest extends TestCase
     public function testSetDefaultEncoding()
     {
         $factory = new SoapSerializationVisitorFactory();
+        $clone = clone($factory);
 
-        static::assertAttributeNotSame('iso-8859-1', 'defaultEncoding', $factory);
+        static::assertEquals($clone, $factory);
         static::assertInstanceOf(SoapSerializationVisitorFactory::class, $factory->setDefaultEncoding('iso-8859-1'));
-        static::assertAttributeSame('iso-8859-1', 'defaultEncoding', $factory);
+        static::assertNotEquals($clone, $factory);
     }
 
     /**
@@ -39,10 +43,11 @@ class SoapSerializationVisitorFactoryTest extends TestCase
     public function testSetFormatOutput()
     {
         $factory = new SoapSerializationVisitorFactory();
+        $clone = clone($factory);
 
-        static::assertAttributeNotSame(false, 'formatOutput', $factory);
+        static::assertEquals($clone, $factory);
         static::assertInstanceOf(SoapSerializationVisitorFactory::class, $factory->setFormatOutput(false));
-        static::assertAttributeSame(false, 'formatOutput', $factory);
+        static::assertNotEquals($clone, $factory);
     }
 
     /**
@@ -61,12 +66,10 @@ class SoapSerializationVisitorFactoryTest extends TestCase
         static::assertSame($namespace, $visitor->getCurrentNode()->namespaceURI);
     }
 
-    /**
-     * @expectedException \JMS\Serializer\Exception\InvalidArgumentException
-     * @expectedExceptionMessage Unsupported SOAP version
-     */
     public function testSetUnknownSoapVersion()
     {
+        $this->expectExceptionObject(new InvalidArgumentException('Unsupported SOAP version'));
+
         if (!defined('SOAP_1_3')) {
             define('SOAP_1_3', 3);
         }
@@ -77,7 +80,7 @@ class SoapSerializationVisitorFactoryTest extends TestCase
     }
 
     /**
-     * @return \Generator
+     * @return Generator
      */
     public function provideVersion()
     {

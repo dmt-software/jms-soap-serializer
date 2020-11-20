@@ -21,7 +21,7 @@ trait SoapSerializerSetUpTrait
      */
     protected $serializer;
 
-    public function setUp()
+    public function setUp(): void
     {
         AnnotationRegistry::registerUniqueLoader('class_exists');
 
