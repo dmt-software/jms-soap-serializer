@@ -68,9 +68,16 @@ class SoapHeaderEventSubscriber implements EventSubscriberInterface
                     $document->firstChild->firstChild
                 )
             );
+            
+            if(null !== $metadata->xmlRootPrefix){
+                $tagName = $metadata->xmlRootPrefix . ':' . $metadata->xmlRootName;
+            }else{
+                $tagName = $metadata->xmlRootName;
+            }
+           
             $visitor->setCurrentNode(
                 $header->appendChild(
-                    $document->createElementNS($metadata->xmlRootNamespace, $metadata->xmlRootName)
+                    $document->createElementNS($metadata->xmlRootNamespace, $tagName)
                 )
             );
 
