@@ -69,9 +69,9 @@ class SoapHeaderEventSubscriber implements EventSubscriberInterface
                 )
             );
             
-            if($metadata->xmlRootPrefix !== null){
+            if ($metadata->xmlRootPrefix !== null) {
                 $tagName = $metadata->xmlRootPrefix . ':' . $metadata->xmlRootName;
-            }else{
+            } else {
                 $tagName = $metadata->xmlRootName;
             }
            
