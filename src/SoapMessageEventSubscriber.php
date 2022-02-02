@@ -56,8 +56,13 @@ class SoapMessageEventSubscriber implements EventSubscriberInterface, SoapNamesp
                 throw new RuntimeException('Missing XmlRootName or XmlRootNamespace for ' . $event->getType()['name']);
             }
 
+            $tagName = $metadata->xmlRootName;
+            if ($metadata->xmlRootPrefix !== null) {
+                $tagName = $metadata->xmlRootPrefix . ':' . $metadata->xmlRootName;
+            }
+            
             $document = $visitor->getDocument();
-            $message = $document->createElementNS($metadata->xmlRootNamespace, $metadata->xmlRootName);
+            $message = $document->createElementNS($metadata->xmlRootNamespace, $tagName);
 
             $visitor->getCurrentNode()->appendChild($message);
             $visitor->setCurrentNode($message);

@@ -5,6 +5,7 @@ namespace DMT\Test\Soap\Serializer;
 use DateTime;
 use DMT\Soap\Serializer\SoapNamespaceInterface;
 use DMT\Test\Soap\Serializer\Fixtures\Language;
+use DMT\Test\Soap\Serializer\Fixtures\LanguageWithPrefix;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -36,6 +37,32 @@ class SoapSerializationTest extends TestCase
         static::assertSame($name, strval($message->name));
         static::assertSame($complexity, intval($message->complexity));
         static::assertSame($date->format('Y-m-d'), strval($message->since));
+    }
+
+    /**
+     * @dataProvider provideLanguage
+     *
+     * @param string $name
+     * @param int $complexity
+     * @param DateTime $date
+     */
+    public function testSerializationWithPrefix(string $name, int $complexity, DateTime $date)
+    {
+        $serialized = $this->serializer->serialize(new LanguageWithPrefix($name, $complexity, $date), 'soap');
+
+        $doc = new \DOMDocument();
+        $doc->loadXML($serialized);
+
+        $xpath = new \DOMXPath($doc);
+        $node = $xpath->query('//*[local-name()="Language" and namespace-uri()="http://xmpl-namespace.nl"]')[0];
+        $name = $xpath->query('//*[local-name()="name" and namespace-uri()="http://xmpl-namespace.nl"]')[0];
+        $complexity = $xpath->query('//*[local-name()="complexity" and namespace-uri()="http://xmpl-namespace.nl"]')[0];
+        $since = $xpath->query('//*[local-name()="since" and namespace-uri()="http://xmpl-namespace.nl"]')[0];
+
+        static::assertSame('ns', $node->prefix);
+        static::assertSame('ns', $name->prefix);
+        static::assertSame('ns', $complexity->prefix);
+        static::assertSame('ns', $since->prefix);
     }
 
     public function provideLanguage(): array
