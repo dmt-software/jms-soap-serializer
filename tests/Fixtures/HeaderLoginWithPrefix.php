@@ -15,5 +15,4 @@ use JMS\Serializer\Annotation as JMS;
  */
 class HeaderLoginWithPrefix extends HeaderLogin
 {
-
 }

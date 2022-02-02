@@ -124,22 +124,18 @@ class SoapHeaderEventSubscriberTest extends TestCase
         ]);
         $languages->setCount(new Count(2));
 
-        $xml = simplexml_load_string(
-            $serializer->serialize($languages, 'soap')
-        );
+        $serialized = $serializer->serialize($languages, 'soap');
 
-        static::assertContains(SoapNamespaceInterface::SOAP_NAMESPACES[SOAP_1_1], $xml->getNamespaces());
-        static::assertSame('Envelope', $xml->getName());
-        static::assertSame('Header', $xml->xpath('/*[local-name()="Envelope"]/*')[0]->getName());
-        static::assertSame('Body', $xml->xpath('/*[local-name()="Envelope"]/*')[1]->getName());
-        static::assertCount(2, $xml->xpath('//*[local-name()="Languages"]/*[local-name()="language"]'));
-        static::assertCount(1, $xml->xpath('//*[local-name()="Languages"]/*[local-name()="count"]'));
+        $doc = new \DOMDocument();
+        $doc->loadXML($serialized);
 
-        $header = $xml->xpath('//*[local-name()="Header"]/*')[0]->children('http://xmpl-namespace.nl');
-        static::assertContains('http://xmpl-namespace.nl', $header->getNamespaces());
-        static::assertContains('ns', array_keys($header->getNamespaces()));
-        static::assertSame('dummy', strval($header->username));
-        static::assertSame('secret123!', strval($header->password));
+        $xpath = new \DOMXPath($doc);
+        $node = $xpath->query('//*[local-name()="HeaderAuthenticate" and namespace-uri()="http://xmpl-namespace.nl"]')[0];
+        $username = $xpath->query('//*[local-name()="username" and namespace-uri()="http://xmpl-namespace.nl"]')[0];
+        $password = $xpath->query('//*[local-name()="password" and namespace-uri()="http://xmpl-namespace.nl"]')[0];
 
+        static::assertSame('ns', $node->prefix);
+        static::assertSame('ns', $username->prefix);
+        static::assertSame('ns', $password->prefix);
     }
 }

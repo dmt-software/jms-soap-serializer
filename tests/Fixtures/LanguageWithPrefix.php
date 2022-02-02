@@ -14,5 +14,4 @@ use JMS\Serializer\Annotation as JMS;
  */
 class LanguageWithPrefix extends Language
 {
-
 }
