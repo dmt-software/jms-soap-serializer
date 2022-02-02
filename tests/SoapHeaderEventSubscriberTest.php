@@ -10,6 +10,7 @@ use DMT\Soap\Serializer\SoapNamespaceInterface;
 use DMT\Soap\Serializer\SoapSerializationVisitorFactory;
 use DMT\Test\Soap\Serializer\Fixtures\Count;
 use DMT\Test\Soap\Serializer\Fixtures\HeaderLogin;
+use DMT\Test\Soap\Serializer\Fixtures\HeaderLoginWithPrefix;
 use DMT\Test\Soap\Serializer\Fixtures\Language;
 use DMT\Test\Soap\Serializer\Fixtures\ListLanguages;
 use Doctrine\Common\Annotations\AnnotationRegistry;
@@ -81,5 +82,64 @@ class SoapHeaderEventSubscriberTest extends TestCase
         $header = $xml->xpath('//*[local-name()="Header"]/*')[0]->children();
         static::assertSame('dummy', strval($header->username));
         static::assertSame('secret123!', strval($header->password));
+    }
+
+    /**
+     * Test the SOAP Header is added, when provided.
+     */
+    public function testAddingSoapHeaderWithPrefix()
+    {
+        AnnotationRegistry::registerUniqueLoader('class_exists');
+
+        $serializer = SerializerBuilder::create()
+            ->setSerializationVisitor('soap', new SoapSerializationVisitorFactory())
+            ->setPropertyNamingStrategy(
+                new SerializedNameAnnotationStrategy(
+                    new IdenticalPropertyNamingStrategy()
+                )
+            )
+            ->configureListeners(
+                function (EventDispatcher $dispatcher) {
+                    $dispatcher->addSubscriber(
+                        new SoapMessageEventSubscriber()
+                    );
+                    $dispatcher->addSubscriber(
+                        new SoapHeaderEventSubscriber(
+                            new HeaderLoginWithPrefix('dummy', 'secret123!')
+                        )
+                    );
+                }
+            )
+            ->configureHandlers(
+                function (HandlerRegistry $registry) {
+                    $registry->registerSubscribingHandler(new SoapDateHandler());
+                }
+            )
+            ->build();
+
+        $languages = new ListLanguages();
+        $languages->setLanguages([
+            new Language('Python', 33, new DateTime('1994-01-25')),
+            new Language('Perl', 40, new DateTime('1987-12-18'))
+        ]);
+        $languages->setCount(new Count(2));
+
+        $xml = simplexml_load_string(
+            $serializer->serialize($languages, 'soap')
+        );
+
+        static::assertContains(SoapNamespaceInterface::SOAP_NAMESPACES[SOAP_1_1], $xml->getNamespaces());
+        static::assertSame('Envelope', $xml->getName());
+        static::assertSame('Header', $xml->xpath('/*[local-name()="Envelope"]/*')[0]->getName());
+        static::assertSame('Body', $xml->xpath('/*[local-name()="Envelope"]/*')[1]->getName());
+        static::assertCount(2, $xml->xpath('//*[local-name()="Languages"]/*[local-name()="language"]'));
+        static::assertCount(1, $xml->xpath('//*[local-name()="Languages"]/*[local-name()="count"]'));
+
+        $header = $xml->xpath('//*[local-name()="Header"]/*')[0]->children('http://xmpl-namespace.nl');
+        static::assertContains('http://xmpl-namespace.nl', $header->getNamespaces());
+        static::assertContains('ns', array_keys($header->getNamespaces()));
+        static::assertSame('dummy', strval($header->username));
+        static::assertSame('secret123!', strval($header->password));
+
     }
 }
