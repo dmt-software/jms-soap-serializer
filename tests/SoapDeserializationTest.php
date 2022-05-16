@@ -198,8 +198,8 @@ TXT;
             static::assertInstanceOf(SoapFault::class, $soapFault);
             static::assertSame('Client', $soapFault->faultcode);
             static::assertSame('Error in soap call', $soapFault->faultstring);
-            static::assertObjectNotHasAttribute('faultactor', $soapFault);
-            static::assertObjectNotHasAttribute('detail', $soapFault);
+            static::assertEmpty($soapFault->faultactor ?? '');
+            static::assertEmpty($soapFault->detail ?? '');
 
             throw $fault;
         }
