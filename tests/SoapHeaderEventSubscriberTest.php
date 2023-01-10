@@ -33,8 +33,6 @@ class SoapHeaderEventSubscriberTest extends TestCase
      */
     public function testAddingSoapHeader()
     {
-        AnnotationRegistry::registerUniqueLoader('class_exists');
-
         $serializer = SerializerBuilder::create()
             ->setSerializationVisitor('soap', new SoapSerializationVisitorFactory())
             ->setPropertyNamingStrategy(
@@ -89,8 +87,6 @@ class SoapHeaderEventSubscriberTest extends TestCase
      */
     public function testAddingSoapHeaderWithPrefix()
     {
-        AnnotationRegistry::registerUniqueLoader('class_exists');
-
         $serializer = SerializerBuilder::create()
             ->setSerializationVisitor('soap', new SoapSerializationVisitorFactory())
             ->setPropertyNamingStrategy(

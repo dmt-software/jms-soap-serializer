@@ -23,8 +23,6 @@ trait SoapSerializerSetUpTrait
 
     public function setUp(): void
     {
-        AnnotationRegistry::registerUniqueLoader('class_exists');
-
         $this->serializer = SerializerBuilder::create()
             ->setSerializationVisitor('soap', new SoapSerializationVisitorFactory())
             ->setDeserializationVisitor('soap', new SoapDeserializationVisitorFactory())
