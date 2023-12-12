@@ -54,7 +54,7 @@ class SoapFaultException extends RuntimeException
                 ['Server', 'Client', 'Client'],
                 $this->code
             );
-            $previous = new SoapFault(...func_get_args());
+            $previous = new SoapFault($code, $reason, $node, $detail);
         }
 
         parent::__construct($reason, 0, $previous);
