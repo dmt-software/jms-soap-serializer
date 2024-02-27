@@ -14,7 +14,8 @@
         "ext-dom": "*",
         "ext-intl" : "*",
         "ext-simplexml": "*",
-        "jms/serializer": "^3.19"
+        "jms/serializer": "^3.19",
+        "doctrine/annotations": "^2.0"
     },
     "autoload": {
         "psr-4": {
