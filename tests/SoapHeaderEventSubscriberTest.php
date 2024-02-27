@@ -13,7 +13,6 @@ use DMT\Test\Soap\Serializer\Fixtures\HeaderLogin;
 use DMT\Test\Soap\Serializer\Fixtures\HeaderLoginWithPrefix;
 use DMT\Test\Soap\Serializer\Fixtures\Language;
 use DMT\Test\Soap\Serializer\Fixtures\ListLanguages;
-use Doctrine\Common\Annotations\AnnotationRegistry;
 use JMS\Serializer\EventDispatcher\EventDispatcher;
 use JMS\Serializer\Handler\HandlerRegistry;
 use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;

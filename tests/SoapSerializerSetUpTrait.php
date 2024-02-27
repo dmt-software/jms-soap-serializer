@@ -6,7 +6,6 @@ use DMT\Soap\Serializer\SoapDateHandler;
 use DMT\Soap\Serializer\SoapDeserializationVisitorFactory;
 use DMT\Soap\Serializer\SoapMessageEventSubscriber;
 use DMT\Soap\Serializer\SoapSerializationVisitorFactory;
-use Doctrine\Common\Annotations\AnnotationRegistry;
 use JMS\Serializer\EventDispatcher\EventDispatcher;
 use JMS\Serializer\Handler\HandlerRegistry;
 use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
