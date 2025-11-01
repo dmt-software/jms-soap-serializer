@@ -122,9 +122,7 @@ namespace Any\NS;
  
 use JMS\Serializer\Annotation as JMS;
  
-/** 
- * @JMS\XmlRoot("YourSOAPRequest", namespace="http://ns-for-your-request")
- */
+#[JMS\XmlRoot(name: 'YourSOAPRequest', namespace: 'http://ns-for-your-request')]
 class YourSOAPRequest
 {
     //...
