@@ -6,6 +6,7 @@ use DMT\Soap\Serializer\SoapFaultException;
 use DMT\Test\Soap\Serializer\Fixtures\Language;
 use JMS\Serializer\Exception\InvalidArgumentException;
 use JMS\Serializer\Serializer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use SoapFault;
 use stdClass;
@@ -86,25 +87,19 @@ TXT;
 </env:Envelope>
 TXT;
 
-    /**
-     * @dataProvider provideLanguage
-     *
-     * @param string $name
-     * @param int $complexity
-     * @param string|null $date
-     */
-    public function testDeserialization(string $name, int $complexity, string $date = null)
+    #[DataProvider(methodName: 'provideLanguage')]
+    public function testDeserialization(string $name, int $complexity, string $date = null): void
     {
         $response = sprintf($this->response, $name, $complexity, $date);
         $language = $this->serializer->deserialize($response, Language::class, 'soap');
 
         /** @var Language $language */
-        static::assertSame($name, $language->getName());
-        static::assertSame($complexity, $language->getComplexity());
-        static::assertEquals($date, $language->getSince()->format('Y-m-d'));
+        $this->assertSame($name, $language->getName());
+        $this->assertSame($complexity, $language->getComplexity());
+        $this->assertEquals($date, $language->getSince()->format('Y-m-d'));
     }
 
-    public function provideLanguage(): array
+    public static function provideLanguage(): iterable
     {
         return [
             ['C#', 102, '2002-01-10'],
@@ -114,7 +109,7 @@ TXT;
         ];
     }
 
-    public function testUnsupportedVersion()
+    public function testUnsupportedVersion(): void
     {
         $this->expectExceptionObject(new InvalidArgumentException('Unsupported SOAP version'));
 
@@ -122,15 +117,8 @@ TXT;
         $this->serializer->deserialize($xml, stdClass::class, 'soap');
     }
 
-    /**
-     * @dataProvider provideSoapFault
-     *
-     * @param string $code
-     * @param string $reason
-     * @param string $node
-     * @param string $detail
-     */
-    public function testSoapFault(string $code, string $reason, string $node, string $detail)
+    #[DataProvider(methodName: 'provideSoapFault')]
+    public function testSoapFault(string $code, string $reason, string $node, string $detail): void
     {
         static::expectException(SoapFaultException::class);
 
@@ -138,27 +126,27 @@ TXT;
             $fault = vsprintf($this->fault, func_get_args());
             $this->serializer->deserialize($fault, stdClass::class, 'soap');
         } catch (SoapFaultException $fault) {
-            static::assertSame($reason, $fault->getMessage());
-            static::assertSame($code, $fault->getFaultCode());
+            $this->assertSame($reason, $fault->getMessage());
+            $this->assertSame($code, $fault->getFaultCode());
 
-            static::assertSame($code, $fault->code);
-            static::assertSame($reason, $fault->reason);
-            static::assertSame($node, $fault->node);
-            static::assertTrue(strpos($fault->detail['message'], $detail) !== false);
+            $this->assertSame($code, $fault->code);
+            $this->assertSame($reason, $fault->reason);
+            $this->assertSame($node, $fault->node);
+            $this->assertTrue(strpos($fault->detail['message'], $detail) !== false);
 
             /** @var SoapFault $soapFault */
             $soapFault = $fault->getPrevious();
-            static::assertInstanceOf(SoapFault::class, $soapFault);
-            static::assertSame($code, $soapFault->faultcode);
-            static::assertSame($reason, $soapFault->faultstring);
-            static::assertSame($node, $soapFault->faultactor);
-            static::assertTrue(strpos($soapFault->detail['message'], $detail) !== false);
+            $this->assertInstanceOf(SoapFault::class, $soapFault);
+            $this->assertSame($code, $soapFault->faultcode);
+            $this->assertSame($reason, $soapFault->faultstring);
+            $this->assertSame($node, $soapFault->faultactor);
+            $this->assertTrue(strpos($soapFault->detail['message'], $detail) !== false);
 
             throw $fault;
         }
     }
 
-    public function provideSoapFault(): array
+    public static function provideSoapFault(): iterable
     {
         return [
             ['Client.NotFound', 'Lorum ipsum', 'http://xmpl.fault.com/err', 'Lorum ipsum dolor sit amet.'],
@@ -166,7 +154,7 @@ TXT;
         ];
     }
 
-    public function testSoapFaultEmptyElements()
+    public function testSoapFaultEmptyElements(): void
     {
         $fault = <<<TXT
 <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
@@ -185,33 +173,28 @@ TXT;
         try {
             $this->serializer->deserialize($fault, stdClass::class, 'soap');
         } catch (SoapFaultException $fault) {
-            static::assertSame('Error in soap call', $fault->getMessage());
-            static::assertSame('Client', $fault->getFaultCode());
+            $this->assertSame('Error in soap call', $fault->getMessage());
+            $this->assertSame('Client', $fault->getFaultCode());
 
-            static::assertSame('Client', $fault->code);
-            static::assertSame('Error in soap call', $fault->reason);
-            static::assertNull($fault->node);
-            static::assertNull($fault->detail);
+            $this->assertSame('Client', $fault->code);
+            $this->assertSame('Error in soap call', $fault->reason);
+            $this->assertNull($fault->node);
+            $this->assertNull($fault->detail);
 
             /** @var SoapFault $soapFault */
             $soapFault = $fault->getPrevious();
-            static::assertInstanceOf(SoapFault::class, $soapFault);
-            static::assertSame('Client', $soapFault->faultcode);
-            static::assertSame('Error in soap call', $soapFault->faultstring);
-            static::assertEmpty($soapFault->faultactor ?? '');
-            static::assertEmpty($soapFault->detail ?? '');
+            $this->assertInstanceOf(SoapFault::class, $soapFault);
+            $this->assertSame('Client', $soapFault->faultcode);
+            $this->assertSame('Error in soap call', $soapFault->faultstring);
+            $this->assertEmpty($soapFault->faultactor ?? '');
+            $this->assertEmpty($soapFault->detail ?? '');
 
             throw $fault;
         }
     }
 
-    /**
-     * @dataProvider provideMessages
-     *
-     * @param string $locale
-     * @param string $expected
-     */
-    public function testSoap12Fault(string $locale, string $expected)
+    #[DataProvider(methodName: 'provideMessages')]
+    public function testSoap12Fault(string $locale, string $expected): void
     {
         static::expectException(SoapFaultException::class);
         locale_set_default($locale);
@@ -219,27 +202,27 @@ TXT;
         try {
             $this->serializer->deserialize($this->fault12, stdClass::class, 'soap');
         } catch (SoapFaultException $fault) {
-            static::assertSame($expected, $fault->getMessage());
-            static::assertSame('Receiver.Validation.Error', $fault->getFaultCode());
+            $this->assertSame($expected, $fault->getMessage());
+            $this->assertSame('Receiver.Validation.Error', $fault->getFaultCode());
 
-            static::assertSame('Receiver.Validation.Error', $fault->code);
-            static::assertSame($expected, $fault->reason);
-            static::assertSame('http://example.org/node', $fault->node);
-            static::assertTrue(in_array('Division by zero', $fault->detail['message']));
+            $this->assertSame('Receiver.Validation.Error', $fault->code);
+            $this->assertSame($expected, $fault->reason);
+            $this->assertSame('http://example.org/node', $fault->node);
+            $this->assertTrue(in_array('Division by zero', $fault->detail['message']));
 
             /** @var SoapFault $soapFault */
             $soapFault = $fault->getPrevious();
-            static::assertInstanceOf(SoapFault::class, $soapFault);
-            static::assertSame('Server.Validation.Error', $soapFault->faultcode);
-            static::assertSame($expected, $soapFault->faultstring);
-            static::assertSame('http://example.org/node', $soapFault->faultactor);
-            static::assertTrue(in_array('Division by zero', $soapFault->detail['message']));
+            $this->assertInstanceOf(SoapFault::class, $soapFault);
+            $this->assertSame('Server.Validation.Error', $soapFault->faultcode);
+            $this->assertSame($expected, $soapFault->faultstring);
+            $this->assertSame('http://example.org/node', $soapFault->faultactor);
+            $this->assertTrue(in_array('Division by zero', $soapFault->detail['message']));
 
             throw $fault;
         }
     }
 
-    public function provideMessages(): array
+    public static function provideMessages(): iterable
     {
         return [
             ['en_US', 'Division by zero'],

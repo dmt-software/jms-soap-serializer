@@ -6,33 +6,20 @@ use JMS\Serializer\Annotation as JMS;
 
 class Count
 {
-    /**
-     * @JMS\XmlElement(cdata=false, namespace="http://xmpl-namespace.nl")
-     * @JMS\Type("string")
-     */
-    protected $num;
+    #[JMS\XmlElement(cdata: false, namespace: 'http://xmpl-namespace.nl')]
+    protected mixed $num;
 
-    /**
-     * Count constructor.
-     * @param $num
-     */
-    public function __construct($num)
+    public function __construct(mixed $num)
     {
         $this->num = $num;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getNum()
+    public function getNum(): mixed
     {
         return $this->num;
     }
 
-    /**
-     * @param mixed $num
-     */
-    public function setNum($num): void
+    public function setNum(mixed $num): void
     {
         $this->num = $num;
     }
