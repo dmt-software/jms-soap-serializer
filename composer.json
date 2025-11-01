@@ -10,12 +10,11 @@
         }
     ],
     "require": {
-        "php": ">=7.2",
+        "php": ">=8.3",
         "ext-dom": "*",
         "ext-intl" : "*",
         "ext-simplexml": "*",
-        "jms/serializer": "^3.19",
-        "doctrine/annotations": "^2.0"
+        "jms/serializer": "^3.30"
     },
     "autoload": {
         "psr-4": {
@@ -24,7 +23,7 @@
     },
     "require-dev": {
         "ext-soap" : "*",
-        "phpunit/phpunit": "^7.2 || ^8.0"
+        "phpunit/phpunit": "^12.0"
     },
     "autoload-dev": {
         "psr-4": {

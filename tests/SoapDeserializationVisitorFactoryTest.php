@@ -12,8 +12,8 @@ class SoapDeserializationVisitorFactoryTest extends TestCase
         $factory = new SoapDeserializationVisitorFactory();
         $clone = clone($factory);
 
-        static::assertEquals($clone, $factory);
-        static::assertInstanceOf(SoapDeserializationVisitorFactory::class, $factory->enableExternalEntities(true));
-        static::assertNotEquals($clone, $factory);
+        $this->assertEquals($clone, $factory);
+        $this->assertInstanceOf(SoapDeserializationVisitorFactory::class, $factory->enableExternalEntities(true));
+        $this->assertNotEquals($clone, $factory);
     }
 }

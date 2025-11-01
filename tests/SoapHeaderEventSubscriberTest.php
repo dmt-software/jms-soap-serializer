@@ -69,16 +69,16 @@ class SoapHeaderEventSubscriberTest extends TestCase
             $serializer->serialize($languages, 'soap')
         );
 
-        static::assertContains(SoapNamespaceInterface::SOAP_NAMESPACES[SOAP_1_1], $xml->getNamespaces());
-        static::assertSame('Envelope', $xml->getName());
-        static::assertSame('Header', $xml->xpath('/*[local-name()="Envelope"]/*')[0]->getName());
-        static::assertSame('Body', $xml->xpath('/*[local-name()="Envelope"]/*')[1]->getName());
-        static::assertCount(2, $xml->xpath('//*[local-name()="Languages"]/*[local-name()="language"]'));
-        static::assertCount(1, $xml->xpath('//*[local-name()="Languages"]/*[local-name()="count"]'));
+        $this->assertContains(SoapNamespaceInterface::SOAP_NAMESPACES[SOAP_1_1], $xml->getNamespaces());
+        $this->assertSame('Envelope', $xml->getName());
+        $this->assertSame('Header', $xml->xpath('/*[local-name()="Envelope"]/*')[0]->getName());
+        $this->assertSame('Body', $xml->xpath('/*[local-name()="Envelope"]/*')[1]->getName());
+        $this->assertCount(2, $xml->xpath('//*[local-name()="Languages"]/*[local-name()="language"]'));
+        $this->assertCount(1, $xml->xpath('//*[local-name()="Languages"]/*[local-name()="count"]'));
 
         $header = $xml->xpath('//*[local-name()="Header"]/*')[0]->children();
-        static::assertSame('dummy', strval($header->username));
-        static::assertSame('secret123!', strval($header->password));
+        $this->assertSame('dummy', strval($header->username));
+        $this->assertSame('secret123!', strval($header->password));
     }
 
     /**
@@ -129,8 +129,8 @@ class SoapHeaderEventSubscriberTest extends TestCase
         $username = $xpath->query('//*[local-name()="username" and namespace-uri()="http://xmpl-namespace.nl"]')[0];
         $password = $xpath->query('//*[local-name()="password" and namespace-uri()="http://xmpl-namespace.nl"]')[0];
 
-        static::assertSame('ns', $node->prefix);
-        static::assertSame('ns', $username->prefix);
-        static::assertSame('ns', $password->prefix);
+        $this->assertSame('ns', $node->prefix);
+        $this->assertSame('ns', $username->prefix);
+        $this->assertSame('ns', $password->prefix);
     }
 }

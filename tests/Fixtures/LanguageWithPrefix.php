@@ -6,12 +6,8 @@ namespace DMT\Test\Soap\Serializer\Fixtures;
 
 use JMS\Serializer\Annotation as JMS;
 
-/**
- * Class ListLanguagesWithPrefix
- *
- * @JMS\AccessType("public_method")
- * @JMS\XmlRoot("Language", namespace="http://xmpl-namespace.nl", prefix="ns")
- */
+#[JMS\AccessType(type: 'public_method')]
+#[JMS\XmlRoot(name: 'Language', namespace: 'http://xmpl-namespace.nl', prefix: 'ns')]
 class LanguageWithPrefix extends Language
 {
 }

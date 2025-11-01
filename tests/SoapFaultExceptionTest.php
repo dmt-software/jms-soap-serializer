@@ -25,12 +25,12 @@ class SoapFaultExceptionTest extends TestCase
                 'message' => 'Can not divide by zero'
             ]
         );
-        static::assertSame('Client.Validation', $fault->getFaultCode());
-        static::assertSame('Division by zero', $fault->getMessage());
+        $this->assertSame('Client.Validation', $fault->getFaultCode());
+        $this->assertSame('Division by zero', $fault->getMessage());
 
-        static::assertSame('Client.Validation', $fault->code);
-        static::assertSame('Division by zero', $fault->reason);
-        static::assertSame('http://example.org/uri', $fault->node);
-        static::assertContains('Can not divide by zero', $fault->detail);
+        $this->assertSame('Client.Validation', $fault->code);
+        $this->assertSame('Division by zero', $fault->reason);
+        $this->assertSame('http://example.org/uri', $fault->node);
+        $this->assertContains('Can not divide by zero', $fault->detail);
     }
 }

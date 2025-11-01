@@ -10,18 +10,15 @@ use JMS\Serializer\Metadata\ClassMetadata;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\XmlSerializationVisitor;
 use Metadata\MetadataFactory;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
 class SoapMessageEventSubscriberTest extends TestCase
 {
-    /**
-     * @dataProvider provideMetadata
-     *
-     * @param ClassMetadata $metadata
-     */
-    public function testMissingXmlRoot(ClassMetadata $metadata)
+    #[DataProvider(methodName: 'provideMetadata')]
+    public function testMissingXmlRoot(ClassMetadata $metadata): void
     {
         $this->expectExceptionObject(new RuntimeException('Missing XmlRootName or XmlRootNamespace for ArrayObject'));
 
@@ -35,11 +32,11 @@ class SoapMessageEventSubscriberTest extends TestCase
         );
     }
 
-    public function provideMetadata(): array
+    public static function provideMetadata(): iterable
     {
         $metadataFactory = function (array $metadataValues = []): ClassMetadata {
             /** @var ClassMetadata $classMetadata */
-            $classMetadata = static::createMock(ClassMetadata::class);
+            $classMetadata = (new self('forMock'))->createMock(ClassMetadata::class);
             foreach ($metadataValues as $property => $value) {
                 $classMetadata->{$property} = $value;
             }
@@ -61,15 +58,15 @@ class SoapMessageEventSubscriberTest extends TestCase
     protected function getSerializationContext(ClassMetadata $metadata): SerializationContext
     {
         /** @var SerializationContext|MockObject $context */
-        $context = static::createMock(SerializationContext::class);
+        $context = $this->createMock(SerializationContext::class);
         $context
             ->expects(static::any())
             ->method('getMetadataFactory')
             ->willReturnCallback(
                 function () use ($metadata) {
-                    $factory = static::createMock(MetadataFactory::class);
+                    $factory = $this->createMock(MetadataFactory::class);
                     $factory
-                        ->expects(static::any())
+                        ->expects($this->any())
                         ->method('getMetadataForClass')
                         ->willReturn($metadata);
 
@@ -90,7 +87,7 @@ class SoapMessageEventSubscriberTest extends TestCase
             );
 
         $context
-            ->expects(static::any())
+            ->expects($this->any())
             ->method('getDepth')
             ->willReturn(1);
 
