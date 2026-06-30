@@ -16,7 +16,7 @@ class SoapDeserializationVisitorFactory implements DeserializationVisitorFactory
     /**
      * @var bool
      */
-    private $disableExternalEntities = true;
+    private bool $disableExternalEntities = true;
 
     /**
      * @return DeserializationVisitorInterface

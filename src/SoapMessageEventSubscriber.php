@@ -2,6 +2,7 @@
 
 namespace DMT\Soap\Serializer;
 
+use DOMException;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\PreDeserializeEvent;
 use JMS\Serializer\EventDispatcher\PreSerializeEvent;
@@ -40,8 +41,9 @@ class SoapMessageEventSubscriber implements EventSubscriberInterface, SoapNamesp
 
     /**
      * @param PreSerializeEvent $event
+     * @throws DOMException
      */
-    public function addMessage(PreSerializeEvent $event)
+    public function addMessage(PreSerializeEvent $event): void
     {
         /** @var SerializationContext $context */
         $context = $event->getContext();
@@ -72,7 +74,7 @@ class SoapMessageEventSubscriber implements EventSubscriberInterface, SoapNamesp
     /**
      * @param PreDeserializeEvent $event
      */
-    public function getMessage(PreDeserializeEvent $event)
+    public function getMessage(PreDeserializeEvent $event): void
     {
         /** @var SerializationContext $context */
         $context = $event->getContext();

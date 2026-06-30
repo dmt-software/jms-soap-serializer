@@ -16,9 +16,9 @@ class SoapDateHandler implements SubscribingHandlerInterface
     /**
      * @var DateHandler
      */
-    protected $dateHandler;
+    protected DateHandler $dateHandler;
 
-    public static function getSubscribingMethods()
+    public static function getSubscribingMethods(): array
     {
         $methods = [];
 

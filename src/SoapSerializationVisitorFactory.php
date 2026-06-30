@@ -2,6 +2,7 @@
 
 namespace DMT\Soap\Serializer;
 
+use DOMException;
 use DOMNode;
 use JMS\Serializer\Exception\InvalidArgumentException;
 use JMS\Serializer\Visitor\Factory\SerializationVisitorFactory;
@@ -18,23 +19,27 @@ final class SoapSerializationVisitorFactory implements SerializationVisitorFacto
     /**
      * @var string
      */
-    private $defaultVersion = '1.0';
+    private string $defaultVersion = '1.0';
 
     /**
      * @var string
      */
-    private $defaultEncoding = 'UTF-8';
+    private string $defaultEncoding = 'UTF-8';
 
     /**
      * @var bool
      */
-    private $formatOutput = true;
+    private bool $formatOutput = true;
 
     /**
      * @var int
      */
-    private $soapVersion = self::SOAP_1_1;
+    private int $soapVersion = self::SOAP_1_1;
 
+    /**
+     * @return SerializationVisitorInterface
+     * @throws DOMException
+     */
     public function getVisitor(): SerializationVisitorInterface
     {
         $visitor = new XmlSerializationVisitor(
@@ -82,11 +87,11 @@ final class SoapSerializationVisitorFactory implements SerializationVisitorFacto
      */
     protected function getSoapNamespace(): string
     {
-        if (!array_key_exists($this->soapVersion, static::SOAP_NAMESPACES)) {
+        if (!array_key_exists($this->soapVersion, SoapNamespaceInterface::SOAP_NAMESPACES)) {
             throw new InvalidArgumentException('Unsupported SOAP version');
         }
 
-        return static::SOAP_NAMESPACES[$this->soapVersion];
+        return SoapNamespaceInterface::SOAP_NAMESPACES[$this->soapVersion];
     }
 
     /**
@@ -97,6 +102,7 @@ final class SoapSerializationVisitorFactory implements SerializationVisitorFacto
      * @param string $namespace
      *
      * @return DOMNode
+     * @throws DOMException
      */
     protected function addXmlElement(DOMNode $parentNode, string $nodeName, string $namespace): DOMNode
     {
