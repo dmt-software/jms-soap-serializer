@@ -12,25 +12,13 @@ use SoapFault;
  */
 class SoapFaultException extends RuntimeException
 {
-    /**
-     * @var string
-     */
     public $code;
 
-    /**
-     * @var string
-     */
-    public $reason;
+    public string $reason;
 
-    /**
-     * @var string
-     */
-    public $node;
+    public ?string $node = null;
 
-    /**
-     * @var array
-     */
-    public $detail;
+    public ?array $detail = null;
 
     /**
      * SoapFaultException constructor.
@@ -40,7 +28,7 @@ class SoapFaultException extends RuntimeException
      * @param string|null $node
      * @param array|null $detail
      */
-    public function __construct(string $code, string $reason, string $node = null, array $detail = null)
+    public function __construct(string $code, string $reason, ?string $node = null, ?array $detail = null)
     {
         $this->code = $code;
         $this->reason = $reason;

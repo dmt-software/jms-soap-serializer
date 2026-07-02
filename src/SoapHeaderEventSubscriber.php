@@ -3,6 +3,7 @@
 namespace DMT\Soap\Serializer;
 
 use DOMDocument;
+use DOMException;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
 use JMS\Serializer\Metadata\ClassMetadata;
@@ -16,10 +17,7 @@ use JMS\Serializer\XmlSerializationVisitor;
  */
 class SoapHeaderEventSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var SoapHeaderInterface
-     */
-    protected $header;
+    protected SoapHeaderInterface $header;
 
     /**
      * {@inheritdoc}
@@ -47,8 +45,9 @@ class SoapHeaderEventSubscriber implements EventSubscriberInterface
 
     /**
      * @param ObjectEvent $event
+     * @throws DOMException
      */
-    public function addSoapHeader(ObjectEvent $event)
+    public function addSoapHeader(ObjectEvent $event): void
     {
         /** @var SerializationContext $context */
         $context = $event->getContext();
